@@ -9,7 +9,20 @@ import {
   ScrollRestoration,
 } from "@remix-run/react";
 
+import styles from "./tailwind.css";
+
 export const links: LinksFunction = () => [
+  { rel: "stylesheet", href: styles },
+  { rel: "preconnect", href: "https://fonts.googleapis.com" },
+  {
+    rel: "preconnect",
+    href: "https://fonts.gstatic.com",
+    crossOrigin: "anonymous",
+  },
+  {
+    rel: "stylesheet",
+    href: "https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;700&display=swap",
+  },
   ...(cssBundleHref ? [{ rel: "stylesheet", href: cssBundleHref }] : []),
 ];
 
@@ -22,7 +35,8 @@ export default function App() {
         <Meta />
         <Links />
       </head>
-      <body>
+      <body className="relative font-display bg-slate-100">
+        <div className="bg-slate-600 h-[23vh] w-full fixed -z-10"></div>
         <Outlet />
         <ScrollRestoration />
         <Scripts />
