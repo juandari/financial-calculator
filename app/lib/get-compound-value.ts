@@ -1,24 +1,24 @@
 interface GetCompoundValue {
-  initial: number;
-  interest: number;
-  contributionsPerYear: number;
+  principal: number;
+  annualInterestRate: number;
+  compoundingFrequency: number;
   years: number;
   monthlyContribution: number;
 }
+// A = P * (1 + r/n)^(n*t) + (PMT * (((1 + r/n)^(n*t) - 1) / (r/n)))
 
 export function getCompoundValue({
-  initial,
-  interest,
-  contributionsPerYear,
-  years,
+  principal,
+  annualInterestRate,
   monthlyContribution,
+  compoundingFrequency,
+  years,
 }: GetCompoundValue) {
-  return (
-    (initial * (1 + interest / contributionsPerYear)) ^
-    (contributionsPerYear * years +
-      monthlyContribution *
-        (((1 + interest / contributionsPerYear) ^
-          (contributionsPerYear * years - 1)) /
-          (interest / contributionsPerYear)))
-  );
+  const n = compoundingFrequency;
+  const r = annualInterestRate / n;
+  const t = years * n;
+
+  let futureValue = principal * Math.pow(1 + r, t);
+
+  return futureValue + (monthlyContribution * (Math.pow(1 + r, t) - 1)) / r;
 }

@@ -36,7 +36,7 @@ export default function App() {
         <Links />
       </head>
       <body className="relative font-display bg-slate-100">
-        <div className="bg-slate-600 h-[23vh] w-full fixed -z-10"></div>
+        <div className="bg-slate-600 h-[30vh] w-full fixed -z-10"></div>
         <Outlet />
         <ScrollRestoration />
         <Scripts />

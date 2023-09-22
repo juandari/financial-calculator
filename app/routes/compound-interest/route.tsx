@@ -1,4 +1,7 @@
 import { useState } from "react";
+import { ArrowLeft } from "lucide-react";
+import { Link } from "@remix-run/react";
+
 import { ButtonAnimate } from "~/components/ButtonAnimate";
 import NumericInput from "~/components/NumericInput";
 import { Card, CardContent, CardFooter } from "~/components/ui/card";
@@ -12,6 +15,7 @@ import {
   SelectValue,
 } from "~/components/ui/select";
 import { getCompoundValue } from "~/lib/get-compound-value";
+import { formatCurrency } from "~/lib/numbers/format-currency";
 
 type Frequency = "annually" | "monthly";
 
@@ -34,11 +38,11 @@ export default function route() {
 
   function handleCalculate() {
     const finalBalance = getCompoundValue({
-      initial: Number(initialInvestment),
+      principal: Number(initialInvestment),
       years: Number(years),
       monthlyContribution: Number(monthlyContribution),
-      interest: Number(interest),
-      contributionsPerYear: frequencyMap[frequency],
+      annualInterestRate: Number(interest),
+      compoundingFrequency: frequencyMap[frequency],
     });
 
     setFinalBalance(finalBalance);
@@ -46,17 +50,24 @@ export default function route() {
   }
 
   function handleResetForm() {
-    setInitialInvestment("");
-    setMonthlyContribution("");
-    setYears("");
-    setInterest("");
-    setFrequency("annually");
-    setFinalBalance(0);
+    setIsResultReady(false);
+    setTimeout(() => {
+      setInitialInvestment("");
+      setMonthlyContribution("");
+      setYears("");
+      setInterest("");
+      setFrequency("annually");
+      setFinalBalance(0);
+    }, 1000);
   }
 
   return (
     <div className="py-8 px-6">
-      <h1 className="text-2xl text-white font-semibold">
+      <Link to=".." replace>
+        <ArrowLeft className="cursor-pointer" color="white" />
+      </Link>
+
+      <h1 className="text-2xl text-white font-semibold mt-4">
         Compound Interest Calculator
       </h1>
 
@@ -127,18 +138,22 @@ export default function route() {
         </CardContent>
       </Card>
 
-      {isResultReady && (
-        <Card className="mt-2">
-          <CardContent className="flex flex-col gap-2 items-center w-full overflow-hidden pt-4">
-            <p className="font-medium text-slate-500 text-md">
-              In {years} years, you will have
-            </p>
-            <p className="font-semibold text-xl text-slate-800">
-              {finalBalance}
-            </p>
-          </CardContent>
-        </Card>
-      )}
+      <Card
+        className={`mt-2 transition-all duration-300 ease-out	 ${
+          isResultReady
+            ? "opacity-100 transform translate-y-0"
+            : "opacity-0 transform -translate-y-4"
+        } `}
+      >
+        <CardContent className="flex flex-col gap-2 items-center w-full overflow-hidden pt-4">
+          <p className="font-medium text-slate-500 text-md">
+            In {years} years, you will have
+          </p>
+          <p className="font-semibold text-xl text-slate-800 overflow-x-scroll w-full text-center">
+            {formatCurrency(finalBalance)}
+          </p>
+        </CardContent>
+      </Card>
     </div>
   );
 }
