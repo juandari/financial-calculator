@@ -1,6 +1,7 @@
-import { useState } from "react";
+import type { MouseEvent } from "react";
+import { useRef, useState } from "react";
 import { ArrowLeft } from "lucide-react";
-import { Link } from "@remix-run/react";
+import { Form, Link } from "@remix-run/react";
 
 import { ButtonAnimate } from "~/components/ButtonAnimate";
 import NumericInput from "~/components/NumericInput";
@@ -32,16 +33,29 @@ export default function route() {
   const [frequency, setFrequency] = useState<Frequency>("annually");
   const [finalBalance, setFinalBalance] = useState(0);
   const [isResultReady, setIsResultReady] = useState(false);
+  const yearsRef = useRef("");
 
   const isFormFilled =
-    !initialInvestment && !monthlyContribution && !years && !interest;
+    !initialInvestment || !monthlyContribution || !years || !interest;
+
+  function resetForm() {
+    setIsResultReady(false);
+    setInitialInvestment("");
+    setMonthlyContribution("");
+    setYears("");
+    setInterest("");
+    setFrequency("annually");
+  }
 
   function handleCalculate() {
+    setFinalBalance(0);
+    yearsRef.current = years;
+
     const finalBalance = getCompoundValue({
       principal: Number(initialInvestment),
       years: Number(years),
       monthlyContribution: Number(monthlyContribution),
-      annualInterestRate: Number(interest),
+      annualInterestRate: Number(interest) / 100,
       compoundingFrequency: frequencyMap[frequency],
     });
 
@@ -49,16 +63,9 @@ export default function route() {
     setIsResultReady(true);
   }
 
-  function handleResetForm() {
-    setIsResultReady(false);
-    setTimeout(() => {
-      setInitialInvestment("");
-      setMonthlyContribution("");
-      setYears("");
-      setInterest("");
-      setFrequency("annually");
-      setFinalBalance(0);
-    }, 1000);
+  function handleResetForm(e: MouseEvent<HTMLButtonElement>) {
+    e.preventDefault();
+    resetForm();
   }
 
   return (
@@ -72,70 +79,72 @@ export default function route() {
       </h1>
 
       <Card className="mt-10">
-        <CardContent className="pt-4">
-          <div>
-            <Label htmlFor="initialInvestment">Initial Investment</Label>
-            <NumericInput
-              id="initialInvestment"
-              value={initialInvestment}
-              onValueChange={(v) => setInitialInvestment(v.value)}
-            />
-          </div>
+        <Form onSubmit={handleCalculate}>
+          <CardContent className="pt-4">
+            <div>
+              <Label htmlFor="initialInvestment">Initial Investment</Label>
+              <NumericInput
+                id="initialInvestment"
+                value={initialInvestment}
+                onValueChange={(v) => setInitialInvestment(v.value)}
+              />
+            </div>
 
-          <div className="mt-2">
-            <Label htmlFor="monthlyContribution">Monthly Contribution</Label>
-            <NumericInput
-              id="monthlyContribution"
-              value={monthlyContribution}
-              onValueChange={(v) => setMonthlyContribution(v.value)}
-            />
-          </div>
+            <div className="mt-2">
+              <Label htmlFor="monthlyContribution">Monthly Contribution</Label>
+              <NumericInput
+                id="monthlyContribution"
+                value={monthlyContribution}
+                onValueChange={(v) => setMonthlyContribution(v.value)}
+              />
+            </div>
 
-          <div className="mt-2">
-            <Label htmlFor="years">Length of Time in Years</Label>
-            <NumericInput
-              id="years"
-              value={years}
-              onValueChange={(v) => setYears(v.value)}
-              prefix=""
-            />
-          </div>
+            <div className="mt-2">
+              <Label htmlFor="years">Length of Time in Years</Label>
+              <NumericInput
+                id="years"
+                value={years}
+                onValueChange={(v) => setYears(v.value)}
+                prefix=""
+              />
+            </div>
 
-          <div className="my-2">
-            <Label htmlFor="interest">Estimated Interest Rate</Label>
-            <NumericInput
-              id="interest"
-              value={interest}
-              onValueChange={(v) => setInterest(v.value)}
-              prefix=""
-            />
-          </div>
+            <div className="my-2">
+              <Label htmlFor="interest">Estimated Interest Rate (%)</Label>
+              <NumericInput
+                id="interest"
+                value={interest}
+                onValueChange={(v) => setInterest(v.value)}
+                prefix=""
+              />
+            </div>
 
-          <Select
-            onValueChange={(v: Frequency) => setFrequency(v)}
-            defaultValue={frequency}
-          >
-            <Label>Compound Frequency</Label>
-            <SelectTrigger className="mt-2">
-              <SelectValue placeholder="Select a compound frequency" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectGroup>
-                <SelectItem value="annually">Annually</SelectItem>
-                <SelectItem value="monthly">Monthly</SelectItem>
-              </SelectGroup>
-            </SelectContent>
-          </Select>
+            <Select
+              onValueChange={(v: Frequency) => setFrequency(v)}
+              defaultValue={frequency}
+            >
+              <Label>Compound Frequency</Label>
+              <SelectTrigger className="mt-2">
+                <SelectValue placeholder="Select a compound frequency" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectGroup>
+                  <SelectItem value="annually">Annually</SelectItem>
+                  <SelectItem value="monthly">Monthly</SelectItem>
+                </SelectGroup>
+              </SelectContent>
+            </Select>
 
-          <CardFooter className="flex justify-end gap-2 p-0 mt-6">
-            <ButtonAnimate variant="destructive" onClick={handleResetForm}>
-              Reset
-            </ButtonAnimate>
-            <ButtonAnimate onClick={handleCalculate} disabled={isFormFilled}>
-              Calculate
-            </ButtonAnimate>
-          </CardFooter>
-        </CardContent>
+            <CardFooter className="flex justify-end gap-2 p-0 mt-6">
+              <ButtonAnimate variant="destructive" onClick={handleResetForm}>
+                Reset
+              </ButtonAnimate>
+              <ButtonAnimate type="submit" disabled={isFormFilled}>
+                Calculate
+              </ButtonAnimate>
+            </CardFooter>
+          </CardContent>
+        </Form>
       </Card>
 
       <Card
@@ -147,7 +156,7 @@ export default function route() {
       >
         <CardContent className="flex flex-col gap-2 items-center w-full overflow-hidden pt-4">
           <p className="font-medium text-slate-500 text-md">
-            In {years} years, you will have
+            In {yearsRef.current} years, you will have
           </p>
           <p className="font-semibold text-xl text-slate-800 overflow-x-scroll w-full text-center">
             {formatCurrency(finalBalance)}

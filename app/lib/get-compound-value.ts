@@ -5,7 +5,8 @@ interface GetCompoundValue {
   years: number;
   monthlyContribution: number;
 }
-// A = P * (1 + r/n)^(n*t) + (PMT * (((1 + r/n)^(n*t) - 1) / (r/n)))
+
+const MONTHS = 12;
 
 export function getCompoundValue({
   principal,
@@ -20,5 +21,9 @@ export function getCompoundValue({
 
   let futureValue = principal * Math.pow(1 + r, t);
 
-  return futureValue + (monthlyContribution * (Math.pow(1 + r, t) - 1)) / r;
+  for (let i = 1; i <= t; i++) {
+    futureValue += monthlyContribution * MONTHS * Math.pow(1 + r, t - i);
+  }
+
+  return futureValue;
 }
