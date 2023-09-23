@@ -10,7 +10,7 @@ export const meta: MetaFunction = () => {
 
 export default function Index() {
   return (
-    <div className="py-8 px-6 ">
+    <div className="py-8 px-6 max-w-[390px] m-auto">
       <h1 className="text-2xl text-slate-100 font-semibold tracking-wider">
         Financial Calculator
       </h1>

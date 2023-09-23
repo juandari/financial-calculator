@@ -69,7 +69,7 @@ export default function route() {
   }
 
   return (
-    <div className="py-8 px-6">
+    <div className="py-8 px-6 max-w-[390px] m-auto">
       <Link to=".." replace>
         <ArrowLeft className="cursor-pointer" color="white" />
       </Link>
