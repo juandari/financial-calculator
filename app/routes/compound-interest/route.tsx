@@ -1,4 +1,4 @@
-import type { MouseEvent } from "react";
+import type { ChangeEvent, MouseEvent } from "react";
 import { useRef, useState } from "react";
 import { ArrowLeft } from "lucide-react";
 import { Form, Link } from "@remix-run/react";
@@ -7,14 +7,6 @@ import { ButtonAnimate } from "~/components/ButtonAnimate";
 import NumericInput from "~/components/NumericInput";
 import { Card, CardContent, CardFooter } from "~/components/ui/card";
 import { Label } from "~/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "~/components/ui/select";
 import { getCompoundValue } from "~/lib/get-compound-value";
 import { formatCurrency } from "~/lib/numbers/format-currency";
 
@@ -68,9 +60,13 @@ export default function route() {
     resetForm();
   }
 
+  function handleChangeFrequency(e: ChangeEvent<HTMLSelectElement>) {
+    setFrequency(e.currentTarget.value as Frequency);
+  }
+
   return (
     <div className="py-8 px-6 max-w-[390px] m-auto">
-      <Link to=".." replace>
+      <Link to=".." replace className="inline-block">
         <ArrowLeft className="cursor-pointer" color="white" />
       </Link>
 
@@ -119,21 +115,18 @@ export default function route() {
               />
             </div>
 
-            <Select
-              onValueChange={(v: Frequency) => setFrequency(v)}
-              defaultValue={frequency}
-            >
+            <div className="my-2">
               <Label>Compound Frequency</Label>
-              <SelectTrigger className="mt-2">
-                <SelectValue placeholder="Select a compound frequency" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectGroup>
-                  <SelectItem value="annually">Annually</SelectItem>
-                  <SelectItem value="monthly">Monthly</SelectItem>
-                </SelectGroup>
-              </SelectContent>
-            </Select>
+
+              <select
+                defaultValue={frequency}
+                onChange={handleChangeFrequency}
+                className="flex h-10 w-full mt-2 items-center justify-between rounded-md border border-slate-200 bg-white px-3 py-2 text-sm ring-offset-white placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-slate-950 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-800 dark:bg-slate-950 dark:ring-offset-slate-950 dark:placeholder:text-slate-400 dark:focus:ring-slate-300"
+              >
+                <option value="annually">Annually</option>
+                <option value="monthly">Monthly</option>
+              </select>
+            </div>
 
             <CardFooter className="flex justify-end gap-2 p-0 mt-6">
               <ButtonAnimate variant="destructive" onClick={handleResetForm}>

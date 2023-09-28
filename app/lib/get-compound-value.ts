@@ -22,7 +22,10 @@ export function getCompoundValue({
   let futureValue = principal * Math.pow(1 + r, t);
 
   for (let i = 1; i <= t; i++) {
-    futureValue += monthlyContribution * MONTHS * Math.pow(1 + r, t - i);
+    futureValue +=
+      monthlyContribution *
+      (MONTHS / compoundingFrequency) *
+      Math.pow(1 + r, t - i);
   }
 
   return futureValue;
