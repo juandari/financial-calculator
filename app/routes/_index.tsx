@@ -1,10 +1,10 @@
-import type { MetaFunction } from "@remix-run/node";
-import { Link } from "@remix-run/react";
+import type { MetaFunction } from '@remix-run/node';
+import { Link } from '@remix-run/react';
 
 export const meta: MetaFunction = () => {
   return [
-    { title: "Financial Calculator" },
-    { name: "description", content: "List of useful financial calculator" },
+    { title: 'Financial Calculator' },
+    { name: 'description', content: 'List of useful financial calculator' },
   ];
 };
 
@@ -22,7 +22,7 @@ export default function Index() {
         <li>
           <Link
             to="compound-interest"
-            className="active:scale-90 transition-all cursor-pointer shadow-2xl rounded-xl text-slate-700 font-semibold p-2 bg-slate-50 w-80 h-44 text-center flex flex-col items-center justify-center"
+            className="hover:scale-110 active:scale-100 transition-all cursor-pointer shadow-2xl rounded-xl text-slate-700 font-semibold p-2 bg-slate-50 w-80 h-44 text-center flex flex-col items-center justify-center"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
