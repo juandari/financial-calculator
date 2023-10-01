@@ -1,16 +1,16 @@
-import type { ChangeEvent, MouseEvent } from 'react';
-import { useEffect, useRef, useState } from 'react';
-import { ArrowLeft } from 'lucide-react';
-import { Form, Link } from '@remix-run/react';
+import type { ChangeEvent, MouseEvent } from "react";
+import { useRef, useState } from "react";
+import { Form } from "@remix-run/react";
 
-import { ButtonAnimate } from '~/components/ButtonAnimate';
-import NumericInput from '~/components/NumericInput';
-import { Card, CardContent, CardFooter } from '~/components/ui/card';
-import { Label } from '~/components/ui/label';
-import { getCompoundValue } from '~/lib/get-compound-value';
-import { formatCurrency } from '~/lib/numbers/format-currency';
+import { ButtonAnimate } from "~/components/button-animate";
+import NumericInput from "~/components/numeric-input";
+import { Card, CardContent, CardFooter } from "~/components/ui/card";
+import { Label } from "~/components/ui/label";
+import { getCompoundValue } from "~/lib/get-compound-value";
+import { formatCurrency } from "~/lib/numbers/format-currency";
+import PageContainer from "~/components/page-container";
 
-type Frequency = 'annually' | 'monthly';
+type Frequency = "annually" | "monthly";
 
 const frequencyMap = {
   annually: 1,
@@ -18,31 +18,17 @@ const frequencyMap = {
 } satisfies Record<Frequency, number>;
 
 export default function route() {
-  const [initialInvestment, setInitialInvestment] = useState('');
-  const [monthlyContribution, setMonthlyContribution] = useState('');
-  const [years, setYears] = useState('');
-  const [interest, setInterest] = useState('');
-  const [frequency, setFrequency] = useState<Frequency>('annually');
+  const [initialInvestment, setInitialInvestment] = useState("");
+  const [monthlyContribution, setMonthlyContribution] = useState("");
+  const [years, setYears] = useState("");
+  const [interest, setInterest] = useState("");
+  const [frequency, setFrequency] = useState<Frequency>("annually");
   const [finalBalance, setFinalBalance] = useState(0);
   const [isResultReady, setIsResultReady] = useState(false);
-  const yearsRef = useRef('');
-  const isRendered = useRef(false);
-
-  useEffect(() => {
-    isRendered.current = true;
-  }, []);
+  const yearsRef = useRef("");
 
   const isFormFilled =
     !initialInvestment || !monthlyContribution || !years || !interest;
-
-  function resetForm() {
-    setIsResultReady(false);
-    setInitialInvestment('');
-    setMonthlyContribution('');
-    setYears('');
-    setInterest('');
-    setFrequency('annually');
-  }
 
   function handleCalculate() {
     setFinalBalance(0);
@@ -60,6 +46,15 @@ export default function route() {
     setIsResultReady(true);
   }
 
+  function resetForm() {
+    setIsResultReady(false);
+    setInitialInvestment("");
+    setMonthlyContribution("");
+    setYears("");
+    setInterest("");
+    setFrequency("annually");
+  }
+
   function handleResetForm(e: MouseEvent<HTMLButtonElement>) {
     e.preventDefault();
     resetForm();
@@ -70,20 +65,14 @@ export default function route() {
   }
 
   return (
-    <div className="py-8 px-6 max-w-[390px] m-auto">
-      <Link to=".." replace className="inline-block">
-        <ArrowLeft className="cursor-pointer" color="white" />
-      </Link>
-
-      <h1 className="text-2xl text-white font-semibold mt-4">
-        Compound Interest Calculator
-      </h1>
-
-      <Card className={`mt-10`}>
+    <PageContainer title="Compound Interest Calculator">
+      <Card className="mt-10">
         <Form onSubmit={handleCalculate}>
           <CardContent className="pt-4">
             <div>
-              <Label htmlFor="initialInvestment">Initial Investment</Label>
+              <Label htmlFor="initialInvestment">
+                Initial Investment (IDR)
+              </Label>
               <NumericInput
                 id="initialInvestment"
                 value={initialInvestment}
@@ -92,7 +81,9 @@ export default function route() {
             </div>
 
             <div className="mt-2">
-              <Label htmlFor="monthlyContribution">Monthly Contribution</Label>
+              <Label htmlFor="monthlyContribution">
+                Monthly Contribution (IDR)
+              </Label>
               <NumericInput
                 id="monthlyContribution"
                 value={monthlyContribution}
@@ -101,7 +92,7 @@ export default function route() {
             </div>
 
             <div className="mt-2">
-              <Label htmlFor="years">Length of Time in Years</Label>
+              <Label htmlFor="years">Duration (years)</Label>
               <NumericInput
                 id="years"
                 value={years}
@@ -117,6 +108,8 @@ export default function route() {
                 value={interest}
                 onValueChange={(v) => setInterest(v.value)}
                 prefix=""
+                thousandSeparator=","
+                decimalSeparator="."
               />
             </div>
 
@@ -148,8 +141,8 @@ export default function route() {
       <Card
         className={`mt-2 transition-all duration-300 ease-out	 ${
           isResultReady
-            ? 'opacity-100 transform translate-y-0'
-            : 'opacity-0 transform -translate-y-4'
+            ? "opacity-100 transform translate-y-0"
+            : "opacity-0 transform -translate-y-4"
         }`}
       >
         <CardContent className="flex flex-col gap-2 items-center w-full overflow-hidden pt-4">
@@ -161,6 +154,6 @@ export default function route() {
           </p>
         </CardContent>
       </Card>
-    </div>
+    </PageContainer>
   );
 }
