@@ -37,6 +37,7 @@ export default function Amortization() {
   const [floatingInterestRate, setFloatingInterestRate] = useState("13");
   const [isMaxDuration, setIsMaxDuration] = useState(false);
   const [floatingGap, setFloatingGap] = useState(0);
+  const [loading, setLoading] = useState(false);
   const [amortizationData, setAmortizationData] = useState<
     ReturnType<typeof getAmortization>
   >([]);
@@ -53,6 +54,7 @@ export default function Amortization() {
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setFloatingGap(Number(duration) - Number(fixDuration));
+    setLoading(true);
 
     const numPayments = Number(duration) * MONTHS_IN_A_YEAR;
     const interestRates: number[] = [];
@@ -74,6 +76,7 @@ export default function Amortization() {
 
     setAmortizationData(result);
     setIsResultReady(true);
+    setLoading(false);
   };
 
   function resetForm() {
@@ -192,7 +195,7 @@ export default function Amortization() {
                   Reset
                 </ButtonAnimate>
                 <ButtonAnimate type="submit" disabled={isFormFilled}>
-                  Calculate
+                  {loading ? "Loading..." : "Calculate"}
                 </ButtonAnimate>
               </CardFooter>
             </CardContent>

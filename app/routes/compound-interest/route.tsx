@@ -28,12 +28,14 @@ export default function route() {
   const [finalBalance, setFinalBalance] = useState(0);
   const [isResultReady, setIsResultReady] = useState(false);
   const [isMaxDuration, setIsMaxDuration] = useState(false);
+  const [loading, setLoading] = useState(false);
   const yearsRef = useRef("");
 
   const isFormFilled =
     !initialInvestment || !monthlyContribution || !years || !interest;
 
   function handleCalculate() {
+    setLoading(true);
     setFinalBalance(0);
     yearsRef.current = years;
 
@@ -47,6 +49,7 @@ export default function route() {
 
     setFinalBalance(finalBalance);
     setIsResultReady(true);
+    setLoading(false);
   }
 
   function resetForm() {
@@ -163,7 +166,7 @@ export default function route() {
                 Reset
               </ButtonAnimate>
               <ButtonAnimate type="submit" disabled={isFormFilled}>
-                Calculate
+                {loading ? "Loading..." : "Calculate"}
               </ButtonAnimate>
             </CardFooter>
           </CardContent>
