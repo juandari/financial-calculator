@@ -1,7 +1,7 @@
-import type { FormEvent, MouseEvent } from "react";
-import { useState } from "react";
+import type { FormEvent, MouseEvent } from 'react';
+import { useState } from 'react';
 
-import { getAmortization } from "~/lib/get-amortization";
+import { getAmortization } from '~/lib/get-amortization';
 import {
   Table,
   TableBody,
@@ -9,9 +9,9 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "~/components/ui/table";
-import PageContainer from "~/components/page-container";
-import { formatCurrency } from "~/lib/numbers/format-currency";
+} from '~/components/ui/table';
+import PageContainer from '~/components/page-container';
+import { formatCurrency } from '~/lib/numbers/format-currency';
 import {
   Card,
   CardContent,
@@ -19,22 +19,22 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "~/components/ui/card";
-import { Form } from "@remix-run/react";
-import { Label } from "~/components/ui/label";
-import NumericInput from "~/components/numeric-input";
-import { ButtonAnimate } from "~/components/button-animate";
+} from '~/components/ui/card';
+import { Form } from '@remix-run/react';
+import { Label } from '~/components/ui/label';
+import NumericInput from '~/components/numeric-input';
+import { ButtonAnimate } from '~/components/button-animate';
 
 const MONTHS_IN_A_YEAR = 12;
 const MAX_TENURES = 36;
 
 export default function Amortization() {
-  const [price, setPrice] = useState("");
-  const [downPayment, setDownPayment] = useState("");
-  const [interestRate, setInterestRate] = useState("");
-  const [duration, setDuration] = useState("");
-  const [fixDuration, setFixDuration] = useState("");
-  const [floatingInterestRate, setFloatingInterestRate] = useState("13");
+  const [price, setPrice] = useState('');
+  const [downPayment, setDownPayment] = useState('');
+  const [interestRate, setInterestRate] = useState('');
+  const [duration, setDuration] = useState('');
+  const [fixDuration, setFixDuration] = useState('');
+  const [floatingInterestRate, setFloatingInterestRate] = useState('13');
   const [isMaxDuration, setIsMaxDuration] = useState(false);
   const [floatingGap, setFloatingGap] = useState(0);
   const [loading, setLoading] = useState(false);
@@ -80,12 +80,12 @@ export default function Amortization() {
   };
 
   function resetForm() {
-    setPrice("");
-    setDownPayment("");
-    setInterestRate("");
-    setDuration("");
-    setFixDuration("");
-    setFloatingInterestRate("13");
+    setPrice('');
+    setDownPayment('');
+    setInterestRate('');
+    setDuration('');
+    setFixDuration('');
+    setFloatingInterestRate('13');
     setIsMaxDuration(false);
   }
 
@@ -159,8 +159,8 @@ export default function Amortization() {
                 <NumericInput
                   className={`mt-2 ${
                     isMaxDuration
-                      ? " focus-visible:ring-red-400 focus-visible:ring-offset-2"
-                      : ""
+                      ? ' focus-visible:ring-red-400 focus-visible:ring-offset-2'
+                      : ''
                   }`}
                   id="duration"
                   value={duration}
@@ -182,8 +182,8 @@ export default function Amortization() {
                 <span
                   className={`${
                     isMaxDuration
-                      ? "opacity-100 transform translate-y-0"
-                      : "opacity-0 transform -translate-y-4"
+                      ? 'opacity-100 transform translate-y-0'
+                      : 'opacity-0 transform -translate-y-4'
                   } text-xs text-red-500 transition-all duration-400 ease-in-out`}
                 >
                   Maximum tenures is 35 years
@@ -195,7 +195,7 @@ export default function Amortization() {
                   Reset
                 </ButtonAnimate>
                 <ButtonAnimate type="submit" disabled={isFormFilled}>
-                  {loading ? "Loading..." : "Calculate"}
+                  {loading ? 'Loading...' : 'Calculate'}
                 </ButtonAnimate>
               </CardFooter>
             </CardContent>
@@ -206,8 +206,8 @@ export default function Amortization() {
       <div
         className={`mx-8 transition-all duration-300 ease-out	 ${
           isResultReady
-            ? "opacity-100 transform translate-y-0"
-            : "opacity-0 transform -translate-y-4"
+            ? 'opacity-100 transform translate-y-0'
+            : 'opacity-0 transform -translate-y-4'
         }`}
       >
         <h2 className=" font-bold text-lg text-slate-800">
@@ -245,9 +245,7 @@ export default function Amortization() {
                   <TableHead>Monthly Payment</TableHead>
                   <TableHead>Principal Payment</TableHead>
                   <TableHead>Interest Payment</TableHead>
-                  <TableHead className="text-right">
-                    Remaining Principal
-                  </TableHead>
+                  <TableHead>Remaining Principal</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -260,10 +258,10 @@ export default function Amortization() {
                     <TableCell>
                       {formatCurrency(item.principalPayment)}
                     </TableCell>
-                    <TableCell className="text-right">
+                    <TableCell>
                       {formatCurrency(item.interestPayment)}
                     </TableCell>
-                    <TableCell className="text-right">
+                    <TableCell>
                       {formatCurrency(item.remainingPrincipal)}
                     </TableCell>
                   </TableRow>
