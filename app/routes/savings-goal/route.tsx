@@ -1,27 +1,36 @@
-import { json, type ActionFunctionArgs } from "@remix-run/node";
-import { Form, useActionData, useNavigation } from "@remix-run/react";
-import { ButtonAnimate } from "~/components/button-animate";
-import NumericInput from "~/components/numeric-input";
-import PageContainer from "~/components/page-container";
-import { Card, CardContent, CardFooter } from "~/components/ui/card";
-import { Label } from "~/components/ui/label";
-import { getSavingsGoal } from "~/lib/get-savings-goal";
-import { formatCurrency } from "~/lib/numbers/format-currency";
+import { json } from '@remix-run/node';
+import type { MetaFunction, ActionFunctionArgs } from '@remix-run/node';
+import { Form, useActionData, useNavigation } from '@remix-run/react';
+import { ButtonAnimate } from '~/components/button-animate';
+import NumericInput from '~/components/numeric-input';
+import PageContainer from '~/components/page-container';
+import { Card, CardContent, CardFooter } from '~/components/ui/card';
+import { Label } from '~/components/ui/label';
+import { getSavingsGoal } from '~/lib/get-savings-goal.server';
+import { formatCurrency } from '~/lib/numbers/format-currency';
+import { removeRpPrefix } from '~/lib/string/remove-rp-prefix';
 
-type CompoundFrequency = "annually" | "monthly";
+type CompoundFrequency = 'annually' | 'monthly';
 
-function removeRpPrefix(text: string) {
-  return text.replace("Rp", "").replaceAll(".", "").replaceAll(",", ".");
-}
+export const meta: MetaFunction = () => {
+  return [
+    { title: 'Savings Goal Calculator' },
+    {
+      name: 'description',
+      content:
+        'Determine your monthly savings target needed to achieve your financial goal.',
+    },
+  ];
+};
 
 export async function action({ request }: ActionFunctionArgs) {
   const formData = await request.formData();
-  const savingsGoal = formData.get("savingsGoal") as string;
-  const initialInvestment = formData.get("initialInvestment") as string;
-  const duration = formData.get("duration") as string;
-  const interest = formData.get("interest") as string;
+  const savingsGoal = formData.get('savingsGoal') as string;
+  const initialInvestment = formData.get('initialInvestment') as string;
+  const duration = formData.get('duration') as string;
+  const interest = formData.get('interest') as string;
   const compoundFrequency = formData.get(
-    "compoundFrequency"
+    'compoundFrequency'
   ) as CompoundFrequency;
 
   const monthlySaving = getSavingsGoal({
@@ -42,7 +51,7 @@ export async function action({ request }: ActionFunctionArgs) {
 export default function SavingsGoal() {
   const data = useActionData<typeof action>();
   const navigation = useNavigation();
-  const isSubmitting = navigation.formAction === "/savings-goal";
+  const isSubmitting = navigation.formAction === '/savings-goal';
 
   return (
     <PageContainer title="Savings Goal Calculator">
@@ -93,7 +102,7 @@ export default function SavingsGoal() {
 
             <CardFooter className="flex justify-end gap-2 p-0 mt-6">
               <ButtonAnimate type="submit">
-                {isSubmitting ? "Loading..." : "Calculate"}
+                {isSubmitting ? 'Loading...' : 'Calculate'}
               </ButtonAnimate>
             </CardFooter>
           </CardContent>
@@ -103,8 +112,8 @@ export default function SavingsGoal() {
       <Card
         className={`mt-4 transition-all duration-300 ease-out	 ${
           data
-            ? "opacity-100 transform translate-y-0"
-            : "opacity-0 transform -translate-y-4"
+            ? 'opacity-100 transform translate-y-0'
+            : 'opacity-0 transform -translate-y-4'
         }`}
       >
         <CardContent className="flex flex-col gap-1 items-center w-full overflow-hidden pt-4 font-medium text-slate-500 text-md">

@@ -3,7 +3,7 @@ interface GetSavingsGoal {
   initialInvestment: number;
   yearsToGrow: number;
   annualInterestRate: number;
-  compoundFrequency: "annually" | "monthly";
+  compoundFrequency: 'annually' | 'monthly';
 }
 
 const compoundingFreqMap = {
@@ -30,7 +30,7 @@ export function getSavingsGoal({
   // Calculate the future value of the goal
   const futureValue = savingsGoal - initialInvestment;
 
-  const divider = compoundFrequency === "annually" ? 12 : 1;
+  const divider = compoundFrequency === 'annually' ? 12 : 1;
 
   // Calculate the monthly savings required
   const PMT =

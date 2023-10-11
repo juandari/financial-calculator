@@ -1,3 +1,4 @@
+import type { MetaFunction } from '@remix-run/node';
 import type { FormEvent, MouseEvent } from 'react';
 import { useState } from 'react';
 
@@ -27,6 +28,13 @@ import { ButtonAnimate } from '~/components/button-animate';
 
 const MONTHS_IN_A_YEAR = 12;
 const MAX_TENURES = 36;
+
+export const meta: MetaFunction = () => {
+  return [
+    { title: 'Amortization Calculator' },
+    { name: 'description', content: 'Generate amortization table' },
+  ];
+};
 
 export default function Amortization() {
   const [price, setPrice] = useState('');
