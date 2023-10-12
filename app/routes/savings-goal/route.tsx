@@ -1,6 +1,7 @@
 import { json } from '@remix-run/node';
 import type { MetaFunction, ActionFunctionArgs } from '@remix-run/node';
 import { Form, useActionData, useNavigation } from '@remix-run/react';
+
 import { ButtonAnimate } from '~/components/button-animate';
 import NumericInput from '~/components/numeric-input';
 import PageContainer from '~/components/page-container';
@@ -9,8 +10,7 @@ import { Label } from '~/components/ui/label';
 import { getSavingsGoal } from '~/lib/get-savings-goal.server';
 import { formatCurrency } from '~/lib/numbers/format-currency';
 import { removeRpPrefix } from '~/lib/string/remove-rp-prefix';
-
-type CompoundFrequency = 'annually' | 'monthly';
+import type { CompoundFrequency } from '~/model/types';
 
 export const meta: MetaFunction = () => {
   return [
@@ -25,10 +25,10 @@ export const meta: MetaFunction = () => {
 
 export async function action({ request }: ActionFunctionArgs) {
   const formData = await request.formData();
-  const savingsGoal = formData.get('savingsGoal') as string;
-  const initialInvestment = formData.get('initialInvestment') as string;
-  const duration = formData.get('duration') as string;
-  const interest = formData.get('interest') as string;
+  const savingsGoal = String(formData.get('savingsGoal'));
+  const initialInvestment = String(formData.get('initialInvestment'));
+  const duration = String(formData.get('duration'));
+  const interest = String(formData.get('interest'));
   const compoundFrequency = formData.get(
     'compoundFrequency'
   ) as CompoundFrequency;

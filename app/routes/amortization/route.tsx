@@ -1,8 +1,11 @@
-import type { MetaFunction } from '@remix-run/node';
-import type { FormEvent, MouseEvent } from 'react';
-import { useState } from 'react';
+import {
+  json,
+  type ActionFunctionArgs,
+  type MetaFunction,
+} from '@remix-run/node';
+import { Loader2 } from 'lucide-react';
 
-import { getAmortization } from '~/lib/get-amortization';
+import { getAmortization } from '~/lib/get-amortization.server';
 import {
   Table,
   TableBody,
@@ -21,10 +24,11 @@ import {
   CardHeader,
   CardTitle,
 } from '~/components/ui/card';
-import { Form } from '@remix-run/react';
+import { Form, useActionData, useNavigation } from '@remix-run/react';
 import { Label } from '~/components/ui/label';
 import NumericInput from '~/components/numeric-input';
 import { ButtonAnimate } from '~/components/button-animate';
+import { removeRpPrefix } from '~/lib/string/remove-rp-prefix';
 
 const MONTHS_IN_A_YEAR = 12;
 const MAX_TENURES = 36;
@@ -36,102 +40,84 @@ export const meta: MetaFunction = () => {
   ];
 };
 
-export default function Amortization() {
-  const [price, setPrice] = useState('');
-  const [downPayment, setDownPayment] = useState('');
-  const [interestRate, setInterestRate] = useState('');
-  const [duration, setDuration] = useState('');
-  const [fixDuration, setFixDuration] = useState('');
-  const [floatingInterestRate, setFloatingInterestRate] = useState('13');
-  const [isMaxDuration, setIsMaxDuration] = useState(false);
-  const [floatingGap, setFloatingGap] = useState(0);
-  const [loading, setLoading] = useState(false);
-  const [amortizationData, setAmortizationData] = useState<
-    ReturnType<typeof getAmortization>
-  >([]);
-  const [isResultReady, setIsResultReady] = useState(false);
+function validateDuration(years: number) {
+  if (years > MAX_TENURES) {
+    return 'Maximum tenures is 35 years';
+  }
+}
 
-  const isFormFilled =
-    !price ||
-    !interestRate ||
-    !duration ||
-    !floatingInterestRate ||
-    !fixDuration ||
-    !downPayment;
+export async function action({ request }: ActionFunctionArgs) {
+  const formData = await request.formData();
+  const price = String(formData.get('price'));
+  const downPayment = String(formData.get('downPayment'));
+  const interestRate = String(formData.get('interestRate'));
+  const fixDuration = String(formData.get('fixDuration'));
+  const floatingInterestRate = String(formData.get('floatingInterestRate'));
+  const duration = String(formData.get('duration'));
 
-  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    setFloatingGap(Number(duration) - Number(fixDuration));
-    setLoading(true);
+  // this is for field validatoin purpose
+  const fieldErrors = { duration: validateDuration(Number(duration)) };
 
-    const numPayments = Number(duration) * MONTHS_IN_A_YEAR;
-    const interestRates: number[] = [];
-
-    for (let i = 0; i < Number(numPayments); i++) {
-      if (i < Number(fixDuration) * MONTHS_IN_A_YEAR) {
-        interestRates.push(Number(interestRate));
-      } else {
-        interestRates.push(Number(floatingInterestRate));
-      }
-    }
-
-    const result = getAmortization({
-      principal: Number(price),
-      downPayment: Number(downPayment),
-      interestRates,
-      numPayments: Number(numPayments),
+  if (fieldErrors.duration) {
+    return json({
+      amortizationData: [],
+      fieldErrors,
+      fixDuration: Number(fixDuration),
     });
-
-    setAmortizationData(result);
-    setIsResultReady(true);
-    setLoading(false);
-  };
-
-  function resetForm() {
-    setPrice('');
-    setDownPayment('');
-    setInterestRate('');
-    setDuration('');
-    setFixDuration('');
-    setFloatingInterestRate('13');
-    setIsMaxDuration(false);
   }
 
-  function handleResetForm(e: MouseEvent<HTMLButtonElement>) {
-    e.preventDefault();
-    resetForm();
+  const numPayments = Number(duration) * MONTHS_IN_A_YEAR;
+  const interestRates: number[] = [];
+
+  for (let i = 0; i < Number(numPayments); i++) {
+    if (i < Number(fixDuration) * MONTHS_IN_A_YEAR) {
+      interestRates.push(Number(interestRate));
+    } else {
+      interestRates.push(Number(floatingInterestRate));
+    }
   }
+
+  const amortizationData = getAmortization({
+    principal: Number(removeRpPrefix(price)),
+    downPayment: Number(removeRpPrefix(downPayment)),
+    interestRates,
+    numPayments: Number(numPayments),
+  });
+
+  return json({
+    amortizationData,
+    fixDuration: Number(fixDuration),
+    fieldErrors,
+  });
+}
+
+export default function Amortization() {
+  const data = useActionData<typeof action>();
+  const navigation = useNavigation();
+  const isSubmitting = navigation.formAction === '/amortization';
+  console.log(data);
 
   return (
     <>
       <PageContainer title="Amortization Table Calculator">
         <Card className="mt-10">
-          <Form onSubmit={(e) => handleSubmit(e)}>
+          <Form method="POST">
             <CardContent className="pt-4">
               <div>
                 <Label htmlFor="price">Price (IDR)</Label>
-                <NumericInput
-                  id="price"
-                  value={price}
-                  onValueChange={(v) => setPrice(v.value)}
-                />
+                <NumericInput id="price" name="price" />
               </div>
 
               <div className="mt-2">
                 <Label htmlFor="downPayment">Down Payment (IDR)</Label>
-                <NumericInput
-                  id="downPayment"
-                  value={downPayment}
-                  onValueChange={(v) => setDownPayment(v.value)}
-                />
+                <NumericInput id="downPayment" name="downPayment" />
               </div>
 
               <div className="mt-2">
                 <Label htmlFor="interestRate">Fixed Interest Rate (%)</Label>
                 <NumericInput
                   id="interestRate"
-                  value={interestRate}
-                  onValueChange={(v) => setInterestRate(v.value)}
+                  name="interestRate"
                   thousandSeparator=","
                   decimalSeparator="."
                   prefix=""
@@ -140,12 +126,7 @@ export default function Amortization() {
 
               <div className="mt-2">
                 <Label htmlFor="fixDuration">Fixed Rate Duration (years)</Label>
-                <NumericInput
-                  id="fixDuration"
-                  value={fixDuration}
-                  onValueChange={(v) => setFixDuration(v.value)}
-                  prefix=""
-                />
+                <NumericInput id="fixDuration" name="fixDuration" prefix="" />
               </div>
 
               <div className="my-2">
@@ -154,8 +135,7 @@ export default function Amortization() {
                 </Label>
                 <NumericInput
                   id="floatingInterestRate"
-                  value={floatingInterestRate}
-                  onValueChange={(v) => setFloatingInterestRate(v.value)}
+                  name="floatingInterestRate"
                   prefix=""
                   thousandSeparator=","
                   decimalSeparator="."
@@ -166,44 +146,35 @@ export default function Amortization() {
                 <Label htmlFor="duration">Tenures (years)</Label>
                 <NumericInput
                   className={`mt-2 ${
-                    isMaxDuration
+                    data?.fieldErrors?.duration
                       ? ' focus-visible:ring-red-400 focus-visible:ring-offset-2'
                       : ''
                   }`}
                   id="duration"
-                  value={duration}
-                  onValueChange={(v) => setDuration(v.value)}
+                  name="duration"
                   prefix=""
-                  isAllowed={(values) => {
-                    const { floatValue = 0 } = values;
-                    const belowLimit = floatValue < MAX_TENURES;
-
-                    if (!belowLimit) {
-                      setIsMaxDuration(true);
-                    } else {
-                      setIsMaxDuration(false);
-                    }
-
-                    return floatValue < MAX_TENURES;
-                  }}
                 />
                 <span
                   className={`${
-                    isMaxDuration
+                    data?.fieldErrors?.duration
                       ? 'opacity-100 transform translate-y-0'
                       : 'opacity-0 transform -translate-y-4'
                   } text-xs text-red-500 transition-all duration-400 ease-in-out`}
                 >
-                  Maximum tenures is 35 years
+                  {data?.fieldErrors.duration}
                 </span>
               </div>
 
               <CardFooter className="flex justify-end gap-2 p-0 mt-2">
-                <ButtonAnimate variant="destructive" onClick={handleResetForm}>
-                  Reset
-                </ButtonAnimate>
-                <ButtonAnimate type="submit" disabled={isFormFilled}>
-                  {loading ? 'Loading...' : 'Calculate'}
+                <ButtonAnimate type="submit">
+                  {isSubmitting ? (
+                    <>
+                      <Loader2 className="animate-spin" />
+                      Loading...
+                    </>
+                  ) : (
+                    'Calculate'
+                  )}
                 </ButtonAnimate>
               </CardFooter>
             </CardContent>
@@ -213,7 +184,7 @@ export default function Amortization() {
 
       <div
         className={`mx-8 transition-all duration-300 ease-out	 ${
-          isResultReady
+          data?.amortizationData
             ? 'opacity-100 transform translate-y-0'
             : 'opacity-0 transform -translate-y-4'
         }`}
@@ -230,14 +201,14 @@ export default function Amortization() {
             <div>
               <h3 className="text-md text-slate-700 font-semibold">Before</h3>
               <span className="text-2xl text-green-400">
-                {formatCurrency(amortizationData[0]?.monthlyPayment)}
+                {formatCurrency(data?.amortizationData[0]?.monthlyPayment)}
               </span>
             </div>
             <div>
               <h3 className="text-md text-slate-700 font-semibold">After</h3>
               <span className="text-2xl text-red-400">
                 {formatCurrency(
-                  amortizationData[floatingGap * MONTHS_IN_A_YEAR]
+                  data?.amortizationData[data?.fixDuration * MONTHS_IN_A_YEAR]
                     ?.monthlyPayment
                 )}
               </span>
@@ -257,7 +228,7 @@ export default function Amortization() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {amortizationData.map((item) => (
+                {data?.amortizationData.map((item) => (
                   <TableRow key={item.month}>
                     <TableCell>{item.month}</TableCell>
                     <TableCell className="w-[200px]">

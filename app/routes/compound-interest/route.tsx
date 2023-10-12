@@ -9,7 +9,7 @@ import { ButtonAnimate } from '~/components/button-animate';
 import NumericInput from '~/components/numeric-input';
 import { Card, CardContent, CardFooter } from '~/components/ui/card';
 import { Label } from '~/components/ui/label';
-import { getCompoundValue } from '~/lib/get-compound-value';
+import { getCompoundValue } from '~/lib/get-compound-value.server';
 import { formatCurrency } from '~/lib/numbers/format-currency';
 import PageContainer from '~/components/page-container';
 import type { CompoundFrequency } from '~/model/types';
@@ -29,6 +29,7 @@ const frequencyMap = {
 } satisfies Record<CompoundFrequency, number>;
 
 const MAX_DURATION = 101;
+
 function validateYears(years: number) {
   if (years > MAX_DURATION) {
     return 'Maximum duration is 100 years';
@@ -37,10 +38,10 @@ function validateYears(years: number) {
 
 export async function action({ request }: ActionFunctionArgs) {
   const formData = await request.formData();
-  const initialInvestment = formData.get('initialInvestment') as string;
-  const monthlyContribution = formData.get('monthlyContribution') as string;
-  const years = formData.get('years') as string;
-  const interest = formData.get('interest') as string;
+  const initialInvestment = String(formData.get('initialInvestment'));
+  const monthlyContribution = String(formData.get('monthlyContribution'));
+  const years = String(formData.get('years'));
+  const interest = String(formData.get('interest'));
   const compoundFrequency = formData.get(
     'compoundFrequency'
   ) as CompoundFrequency;
@@ -115,7 +116,7 @@ export default function route() {
                     : 'opacity-0 transform -translate-y-4'
                 } text-xs text-red-500 transition-all duration-400 ease-in-out`}
               >
-                Maximum duration is 100 years
+                {data?.fieldErrors.years}
               </span>
             </div>
 
