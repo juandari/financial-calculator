@@ -28,7 +28,12 @@ const frequencyMap = {
   monthly: 12,
 } satisfies Record<CompoundFrequency, number>;
 
-// const MAX_DURATION = 101;
+const MAX_DURATION = 101;
+function validateYears(years: number) {
+  if (years > MAX_DURATION) {
+    return 'Maximum duration is 100 years';
+  }
+}
 
 export async function action({ request }: ActionFunctionArgs) {
   const formData = await request.formData();
@@ -39,6 +44,13 @@ export async function action({ request }: ActionFunctionArgs) {
   const compoundFrequency = formData.get(
     'compoundFrequency'
   ) as CompoundFrequency;
+
+  // this is for field validatoin purpose
+  const fieldErrors = { years: validateYears(Number(years)) };
+
+  if (fieldErrors.years) {
+    return json({ finalBalance: '', years, fieldErrors });
+  }
 
   const finalBalance = getCompoundValue({
     principal: Number(removeRpPrefix(initialInvestment)),
@@ -51,6 +63,7 @@ export async function action({ request }: ActionFunctionArgs) {
   return json({
     finalBalance: formatCurrency(finalBalance),
     years,
+    fieldErrors,
   });
 }
 
@@ -86,24 +99,24 @@ export default function route() {
                 Duration (years)
               </Label>
               <NumericInput
-                // className={`mt-2 ${
-                //   isMaxDuration
-                //     ? ' focus-visible:ring-red-400 focus-visible:ring-offset-2'
-                //     : ''
-                // }`}
+                className={`mt-2 ${
+                  data?.fieldErrors.years
+                    ? ' focus-visible:ring-red-400 focus-visible:ring-offset-2'
+                    : ''
+                }`}
                 id="years"
                 name="years"
                 prefix=""
               />
-              {/* <span
+              <span
                 className={`${
-                  isMaxDuration
+                  data?.fieldErrors.years
                     ? 'opacity-100 transform translate-y-0'
                     : 'opacity-0 transform -translate-y-4'
                 } text-xs text-red-500 transition-all duration-400 ease-in-out`}
               >
                 Maximum duration is 100 years
-              </span> */}
+              </span>
             </div>
 
             <div className="my-2">
@@ -131,7 +144,7 @@ export default function route() {
             </div>
 
             <CardFooter className="flex justify-end gap-2 p-0 mt-6">
-              <ButtonAnimate type="submit">
+              <ButtonAnimate type="submit" className="gap-2">
                 {isSubmitting ? (
                   <>
                     <Loader2 className="animate-spin" />

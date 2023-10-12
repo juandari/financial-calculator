@@ -19,14 +19,6 @@ export function getCompoundValue({
   const r = annualInterestRate / n;
   const t = years * n;
 
-  console.log(
-    principal,
-    annualInterestRate,
-    monthlyContribution,
-    compoundingFrequency,
-    years
-  );
-
   let futureValue = principal * Math.pow(1 + r, t);
 
   for (let i = 1; i <= t; i++) {
