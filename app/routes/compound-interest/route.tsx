@@ -36,38 +36,6 @@ function validateYears(years: number) {
   }
 }
 
-export async function action({ request }: ActionFunctionArgs) {
-  const formData = await request.formData();
-  const initialInvestment = String(formData.get('initialInvestment'));
-  const monthlyContribution = String(formData.get('monthlyContribution'));
-  const years = String(formData.get('years'));
-  const interest = String(formData.get('interest'));
-  const compoundFrequency = formData.get(
-    'compoundFrequency'
-  ) as CompoundFrequency;
-
-  // this is for field validatoin purpose
-  const fieldErrors = { years: validateYears(Number(years)) };
-
-  if (fieldErrors.years) {
-    return json({ finalBalance: '', years, fieldErrors });
-  }
-
-  const finalBalance = getCompoundValue({
-    principal: Number(removeRpPrefix(initialInvestment)),
-    years: Number(years),
-    monthlyContribution: Number(removeRpPrefix(monthlyContribution)),
-    annualInterestRate: Number(interest) / 100,
-    compoundingFrequency: frequencyMap[compoundFrequency],
-  });
-
-  return json({
-    finalBalance: formatCurrency(finalBalance),
-    years,
-    fieldErrors,
-  });
-}
-
 export default function route() {
   const data = useActionData<typeof action>();
   const navigation = useNavigation();
@@ -178,4 +146,36 @@ export default function route() {
       </Card>
     </PageContainer>
   );
+}
+
+export async function action({ request }: ActionFunctionArgs) {
+  const formData = await request.formData();
+  const initialInvestment = String(formData.get('initialInvestment'));
+  const monthlyContribution = String(formData.get('monthlyContribution'));
+  const years = String(formData.get('years'));
+  const interest = String(formData.get('interest'));
+  const compoundFrequency = formData.get(
+    'compoundFrequency'
+  ) as CompoundFrequency;
+
+  // this is for field validatoin purpose
+  const fieldErrors = { years: validateYears(Number(years)) };
+
+  if (fieldErrors.years) {
+    return json({ finalBalance: '', years, fieldErrors });
+  }
+
+  const finalBalance = getCompoundValue({
+    principal: Number(removeRpPrefix(initialInvestment)),
+    years: Number(years),
+    monthlyContribution: Number(removeRpPrefix(monthlyContribution)),
+    annualInterestRate: Number(interest) / 100,
+    compoundingFrequency: frequencyMap[compoundFrequency],
+  });
+
+  return json({
+    finalBalance: formatCurrency(finalBalance),
+    years,
+    fieldErrors,
+  });
 }

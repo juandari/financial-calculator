@@ -33,6 +33,12 @@ import { removeRpPrefix } from '~/lib/string/remove-rp-prefix';
 const MONTHS_IN_A_YEAR = 12;
 const MAX_TENURES = 36;
 
+function validateDuration(years: number) {
+  if (years > MAX_TENURES) {
+    return 'Maximum tenures is 35 years';
+  }
+}
+
 export const meta: MetaFunction = () => {
   return [
     { title: 'Amortization Calculator' },
@@ -40,62 +46,10 @@ export const meta: MetaFunction = () => {
   ];
 };
 
-function validateDuration(years: number) {
-  if (years > MAX_TENURES) {
-    return 'Maximum tenures is 35 years';
-  }
-}
-
-export async function action({ request }: ActionFunctionArgs) {
-  const formData = await request.formData();
-  const price = String(formData.get('price'));
-  const downPayment = String(formData.get('downPayment'));
-  const interestRate = String(formData.get('interestRate'));
-  const fixDuration = String(formData.get('fixDuration'));
-  const floatingInterestRate = String(formData.get('floatingInterestRate'));
-  const duration = String(formData.get('duration'));
-
-  // this is for field validatoin purpose
-  const fieldErrors = { duration: validateDuration(Number(duration)) };
-
-  if (fieldErrors.duration) {
-    return json({
-      amortizationData: [],
-      fieldErrors,
-      fixDuration: Number(fixDuration),
-    });
-  }
-
-  const numPayments = Number(duration) * MONTHS_IN_A_YEAR;
-  const interestRates: number[] = [];
-
-  for (let i = 0; i < Number(numPayments); i++) {
-    if (i < Number(fixDuration) * MONTHS_IN_A_YEAR) {
-      interestRates.push(Number(interestRate));
-    } else {
-      interestRates.push(Number(floatingInterestRate));
-    }
-  }
-
-  const amortizationData = getAmortization({
-    principal: Number(removeRpPrefix(price)),
-    downPayment: Number(removeRpPrefix(downPayment)),
-    interestRates,
-    numPayments: Number(numPayments),
-  });
-
-  return json({
-    amortizationData,
-    fixDuration: Number(fixDuration),
-    fieldErrors,
-  });
-}
-
 export default function Amortization() {
   const data = useActionData<typeof action>();
   const navigation = useNavigation();
   const isSubmitting = navigation.formAction === '/amortization';
-  console.log(data);
 
   return (
     <>
@@ -252,4 +206,49 @@ export default function Amortization() {
       </div>
     </>
   );
+}
+
+export async function action({ request }: ActionFunctionArgs) {
+  const formData = await request.formData();
+  const price = String(formData.get('price'));
+  const downPayment = String(formData.get('downPayment'));
+  const interestRate = String(formData.get('interestRate'));
+  const fixDuration = String(formData.get('fixDuration'));
+  const floatingInterestRate = String(formData.get('floatingInterestRate'));
+  const duration = String(formData.get('duration'));
+
+  // this is for field validatoin purpose
+  const fieldErrors = { duration: validateDuration(Number(duration)) };
+
+  if (fieldErrors.duration) {
+    return json({
+      amortizationData: [],
+      fieldErrors,
+      fixDuration: Number(fixDuration),
+    });
+  }
+
+  const numPayments = Number(duration) * MONTHS_IN_A_YEAR;
+  const interestRates: number[] = [];
+
+  for (let i = 0; i < Number(numPayments); i++) {
+    if (i < Number(fixDuration) * MONTHS_IN_A_YEAR) {
+      interestRates.push(Number(interestRate));
+    } else {
+      interestRates.push(Number(floatingInterestRate));
+    }
+  }
+
+  const amortizationData = getAmortization({
+    principal: Number(removeRpPrefix(price)),
+    downPayment: Number(removeRpPrefix(downPayment)),
+    interestRates,
+    numPayments: Number(numPayments),
+  });
+
+  return json({
+    amortizationData,
+    fixDuration: Number(fixDuration),
+    fieldErrors,
+  });
 }

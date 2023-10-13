@@ -23,31 +23,6 @@ export const meta: MetaFunction = () => {
   ];
 };
 
-export async function action({ request }: ActionFunctionArgs) {
-  const formData = await request.formData();
-  const savingsGoal = String(formData.get('savingsGoal'));
-  const initialInvestment = String(formData.get('initialInvestment'));
-  const duration = String(formData.get('duration'));
-  const interest = String(formData.get('interest'));
-  const compoundFrequency = formData.get(
-    'compoundFrequency'
-  ) as CompoundFrequency;
-
-  const monthlySaving = getSavingsGoal({
-    savingsGoal: Number(removeRpPrefix(savingsGoal)),
-    initialInvestment: Number(removeRpPrefix(initialInvestment)),
-    yearsToGrow: Number(removeRpPrefix(duration)),
-    annualInterestRate: Number(removeRpPrefix(interest)),
-    compoundFrequency,
-  });
-
-  return json({
-    monthlySaving: formatCurrency(Number(monthlySaving)),
-    years: duration,
-    savingsGoal,
-  });
-}
-
 export default function SavingsGoal() {
   const data = useActionData<typeof action>();
   const navigation = useNavigation();
@@ -131,4 +106,29 @@ export default function SavingsGoal() {
       </Card>
     </PageContainer>
   );
+}
+
+export async function action({ request }: ActionFunctionArgs) {
+  const formData = await request.formData();
+  const savingsGoal = String(formData.get('savingsGoal'));
+  const initialInvestment = String(formData.get('initialInvestment'));
+  const duration = String(formData.get('duration'));
+  const interest = String(formData.get('interest'));
+  const compoundFrequency = formData.get(
+    'compoundFrequency'
+  ) as CompoundFrequency;
+
+  const monthlySaving = getSavingsGoal({
+    savingsGoal: Number(removeRpPrefix(savingsGoal)),
+    initialInvestment: Number(removeRpPrefix(initialInvestment)),
+    yearsToGrow: Number(removeRpPrefix(duration)),
+    annualInterestRate: Number(removeRpPrefix(interest)),
+    compoundFrequency,
+  });
+
+  return json({
+    monthlySaving: formatCurrency(Number(monthlySaving)),
+    years: duration,
+    savingsGoal,
+  });
 }
