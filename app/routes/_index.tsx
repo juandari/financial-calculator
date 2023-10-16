@@ -1,10 +1,10 @@
-import type { MetaFunction } from "@remix-run/node";
-import MenuCard from "~/components/menu-card";
+import type { MetaFunction } from '@remix-run/node';
+import MenuCard from '~/components/menu-card';
 
 export const meta: MetaFunction = () => {
   return [
-    { title: "Financial Calculator" },
-    { name: "description", content: "List of useful financial calculator" },
+    { title: 'Financial Calculator' },
+    { name: 'description', content: 'List of useful financial calculator' },
   ];
 };
 
