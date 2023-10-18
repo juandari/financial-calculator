@@ -2,10 +2,10 @@ import {
   json,
   type ActionFunctionArgs,
   type MetaFunction,
-} from '@remix-run/node';
-import { Loader2 } from 'lucide-react';
+} from "@remix-run/node";
+import { Loader2 } from "lucide-react";
 
-import { getAmortization } from '~/lib/get-amortization.server';
+import { getAmortization } from "~/lib/get-amortization.server";
 import {
   Table,
   TableBody,
@@ -13,9 +13,9 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '~/components/ui/table';
-import PageContainer from '~/components/page-container';
-import { formatCurrency } from '~/lib/numbers/format-currency';
+} from "~/components/ui/table";
+import PageContainer from "~/components/page-container";
+import { formatCurrency } from "~/lib/numbers/format-currency";
 import {
   Card,
   CardContent,
@@ -23,37 +23,37 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from '~/components/ui/card';
-import { Form, useActionData, useNavigation } from '@remix-run/react';
-import { Label } from '~/components/ui/label';
-import NumericInput from '~/components/numeric-input';
-import { ButtonAnimate } from '~/components/button-animate';
-import { removeRpPrefix } from '~/lib/string/remove-rp-prefix';
+} from "~/components/ui/card";
+import { Form, useActionData, useNavigation } from "@remix-run/react";
+import { Label } from "~/components/ui/label";
+import NumericInput from "~/components/numeric-input";
+import { ButtonAnimate } from "~/components/button-animate";
+import { removeRpPrefix } from "~/lib/string/remove-rp-prefix";
 
 const MONTHS_IN_A_YEAR = 12;
 const MAX_TENURES = 36;
 
 function validateDuration(years: number) {
   if (years > MAX_TENURES) {
-    return 'Maximum tenures is 35 years';
+    return "Maximum tenures is 35 years";
   }
 }
 
 export const meta: MetaFunction = () => {
   return [
-    { title: 'Amortization Calculator' },
-    { name: 'description', content: 'Generate amortization table' },
+    { title: "Amortization Calculator" },
+    { name: "description", content: "Generate amortization table" },
   ];
 };
 
 export default function Amortization() {
   const data = useActionData<typeof action>();
   const navigation = useNavigation();
-  const isSubmitting = navigation.formAction === '/amortization';
+  const isSubmitting = navigation.formAction === "/amortization";
 
   return (
     <>
-      <PageContainer title="Amortization Table Calculator">
+      <PageContainer title="Amortization Table">
         <Card className="mt-10">
           <Form method="POST">
             <CardContent className="pt-4">
@@ -101,8 +101,8 @@ export default function Amortization() {
                 <NumericInput
                   className={`mt-2 ${
                     data?.fieldErrors?.duration
-                      ? ' focus-visible:ring-red-400 focus-visible:ring-offset-2'
-                      : ''
+                      ? " focus-visible:ring-red-400 focus-visible:ring-offset-2"
+                      : ""
                   }`}
                   id="duration"
                   name="duration"
@@ -111,8 +111,8 @@ export default function Amortization() {
                 <span
                   className={`${
                     data?.fieldErrors?.duration
-                      ? 'opacity-100 transform translate-y-0'
-                      : 'opacity-0 transform -translate-y-4'
+                      ? "opacity-100 transform translate-y-0"
+                      : "opacity-0 transform -translate-y-4"
                   } text-xs text-red-500 transition-all duration-400 ease-in-out`}
                 >
                   {data?.fieldErrors.duration}
@@ -127,7 +127,7 @@ export default function Amortization() {
                       Loading...
                     </>
                   ) : (
-                    'Calculate'
+                    "Calculate"
                   )}
                 </ButtonAnimate>
               </CardFooter>
@@ -139,8 +139,8 @@ export default function Amortization() {
       <div
         className={`mx-8 transition-all duration-300 ease-out	 ${
           data?.amortizationData
-            ? 'opacity-100 transform translate-y-0'
-            : 'opacity-0 transform -translate-y-4'
+            ? "opacity-100 transform translate-y-0"
+            : "opacity-0 transform -translate-y-4"
         }`}
       >
         <h2 className=" font-bold text-lg text-slate-800">
@@ -210,12 +210,12 @@ export default function Amortization() {
 
 export async function action({ request }: ActionFunctionArgs) {
   const formData = await request.formData();
-  const price = String(formData.get('price'));
-  const downPayment = String(formData.get('downPayment'));
-  const interestRate = String(formData.get('interestRate'));
-  const fixDuration = String(formData.get('fixDuration'));
-  const floatingInterestRate = String(formData.get('floatingInterestRate'));
-  const duration = String(formData.get('duration'));
+  const price = String(formData.get("price"));
+  const downPayment = String(formData.get("downPayment"));
+  const interestRate = String(formData.get("interestRate"));
+  const fixDuration = String(formData.get("fixDuration"));
+  const floatingInterestRate = String(formData.get("floatingInterestRate"));
+  const duration = String(formData.get("duration"));
 
   // this is for field validatoin purpose
   const fieldErrors = { duration: validateDuration(Number(duration)) };

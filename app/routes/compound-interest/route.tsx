@@ -1,25 +1,25 @@
-import { Form, useActionData, useNavigation } from '@remix-run/react';
+import { Form, useActionData, useNavigation } from "@remix-run/react";
 import {
   json,
   type ActionFunctionArgs,
   type MetaFunction,
-} from '@remix-run/node';
+} from "@remix-run/node";
 
-import { ButtonAnimate } from '~/components/button-animate';
-import NumericInput from '~/components/numeric-input';
-import { Card, CardContent, CardFooter } from '~/components/ui/card';
-import { Label } from '~/components/ui/label';
-import { getCompoundValue } from '~/lib/get-compound-value.server';
-import { formatCurrency } from '~/lib/numbers/format-currency';
-import PageContainer from '~/components/page-container';
-import type { CompoundFrequency } from '~/model/types';
-import { removeRpPrefix } from '~/lib/string/remove-rp-prefix';
-import { Loader2 } from 'lucide-react';
+import { ButtonAnimate } from "~/components/button-animate";
+import NumericInput from "~/components/numeric-input";
+import { Card, CardContent, CardFooter } from "~/components/ui/card";
+import { Label } from "~/components/ui/label";
+import { getCompoundValue } from "~/lib/get-compound-value.server";
+import { formatCurrency } from "~/lib/numbers/format-currency";
+import PageContainer from "~/components/page-container";
+import type { CompoundFrequency } from "~/model/types";
+import { removeRpPrefix } from "~/lib/string/remove-rp-prefix";
+import { Loader2 } from "lucide-react";
 
 export const meta: MetaFunction = () => {
   return [
-    { title: 'Compound Interest Calculator' },
-    { name: 'description', content: 'Calculate compound interest' },
+    { title: "Compound Interest Calculator" },
+    { name: "description", content: "Calculate compound interest" },
   ];
 };
 
@@ -32,17 +32,17 @@ const MAX_DURATION = 101;
 
 function validateYears(years: number) {
   if (years > MAX_DURATION) {
-    return 'Maximum duration is 100 years';
+    return "Maximum duration is 100 years";
   }
 }
 
 export default function route() {
   const data = useActionData<typeof action>();
   const navigation = useNavigation();
-  const isSubmitting = navigation.formAction === '/compound-interest';
+  const isSubmitting = navigation.formAction === "/compound-interest";
 
   return (
-    <PageContainer title="Compound Interest Calculator">
+    <PageContainer title="Compound Interest">
       <Card className="mt-10">
         <Form method="POST">
           <CardContent className="pt-4">
@@ -70,8 +70,8 @@ export default function route() {
               <NumericInput
                 className={`mt-2 ${
                   data?.fieldErrors.years
-                    ? ' focus-visible:ring-red-400 focus-visible:ring-offset-2'
-                    : ''
+                    ? " focus-visible:ring-red-400 focus-visible:ring-offset-2"
+                    : ""
                 }`}
                 id="years"
                 name="years"
@@ -80,8 +80,8 @@ export default function route() {
               <span
                 className={`${
                   data?.fieldErrors.years
-                    ? 'opacity-100 transform translate-y-0'
-                    : 'opacity-0 transform -translate-y-4'
+                    ? "opacity-100 transform translate-y-0"
+                    : "opacity-0 transform -translate-y-4"
                 } text-xs text-red-500 transition-all duration-400 ease-in-out`}
               >
                 {data?.fieldErrors.years}
@@ -120,7 +120,7 @@ export default function route() {
                     Loading...
                   </>
                 ) : (
-                  'Calculate'
+                  "Calculate"
                 )}
               </ButtonAnimate>
             </CardFooter>
@@ -131,8 +131,8 @@ export default function route() {
       <Card
         className={`mt-4 transition-all duration-300 ease-out	 ${
           data?.finalBalance
-            ? 'opacity-100 transform translate-y-0'
-            : 'opacity-0 transform -translate-y-4'
+            ? "opacity-100 transform translate-y-0"
+            : "opacity-0 transform -translate-y-4"
         }`}
       >
         <CardContent className="flex flex-col gap-2 items-center w-full overflow-hidden pt-4">
@@ -150,19 +150,19 @@ export default function route() {
 
 export async function action({ request }: ActionFunctionArgs) {
   const formData = await request.formData();
-  const initialInvestment = String(formData.get('initialInvestment'));
-  const monthlyContribution = String(formData.get('monthlyContribution'));
-  const years = String(formData.get('years'));
-  const interest = String(formData.get('interest'));
+  const initialInvestment = String(formData.get("initialInvestment"));
+  const monthlyContribution = String(formData.get("monthlyContribution"));
+  const years = String(formData.get("years"));
+  const interest = String(formData.get("interest"));
   const compoundFrequency = formData.get(
-    'compoundFrequency'
+    "compoundFrequency"
   ) as CompoundFrequency;
 
   // this is for field validatoin purpose
   const fieldErrors = { years: validateYears(Number(years)) };
 
   if (fieldErrors.years) {
-    return json({ finalBalance: '', years, fieldErrors });
+    return json({ finalBalance: "", years, fieldErrors });
   }
 
   const finalBalance = getCompoundValue({
