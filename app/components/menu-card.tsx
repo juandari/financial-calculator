@@ -1,5 +1,5 @@
-import { NavLink } from "@remix-run/react";
-import type { ReactNode } from "react";
+import { NavLink } from '@remix-run/react';
+import type { ReactNode } from 'react';
 
 interface MenuCardProps {
   children?: ReactNode;
@@ -12,7 +12,7 @@ export default function MenuCard({ title, children, href }: MenuCardProps) {
     <NavLink
       unstable_viewTransition
       to={href}
-      className="active:scale-90 transition-all cursor-pointer shadow-2xl rounded-xl text-slate-700 font-semibold p-2 bg-slate-50 w-80 h-44 text-center flex flex-col items-center justify-center"
+      className="active:scale-90 hover:scale-x-105 transition-all cursor-pointer shadow-xl rounded-xl text-slate-700 font-semibold p-2 bg-slate-50 w-80 h-44 text-center flex flex-col items-center justify-center"
     >
       {({ isTransitioning }) => (
         <>
@@ -20,7 +20,7 @@ export default function MenuCard({ title, children, href }: MenuCardProps) {
           <span
             className="mt-2"
             style={
-              isTransitioning ? { viewTransitionName: "card-title" } : undefined
+              isTransitioning ? { viewTransitionName: 'card-title' } : undefined
             }
           >
             {title}
