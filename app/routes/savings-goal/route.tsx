@@ -39,9 +39,7 @@ export default function SavingsGoal() {
             </div>
 
             <div className="mt-4">
-              <Label htmlFor="initialInvestment">
-                Initial Investment (IDR)
-              </Label>
+              <Label htmlFor="initialInvestment">Initial Savings (IDR)</Label>
               <NumericInput id="initialInvestment" name="initialInvestment" />
             </div>
 
