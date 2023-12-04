@@ -1,6 +1,6 @@
-import { json } from "@remix-run/node";
+import { redirect } from "@remix-run/node";
 import type { MetaFunction, ActionFunctionArgs } from "@remix-run/node";
-import { Form, useActionData, useNavigation } from "@remix-run/react";
+import { Form, useNavigation, useSearchParams } from "@remix-run/react";
 
 import { ButtonAnimate } from "~/components/button-animate";
 import NumericInput from "~/components/numeric-input";
@@ -9,6 +9,7 @@ import { Card, CardContent, CardFooter } from "~/components/ui/card";
 import { Label } from "~/components/ui/label";
 import { getSavingsGoal } from "~/lib/get-savings-goal.server";
 import { formatCurrency } from "~/lib/numbers/format-currency";
+import { paramsToObject } from "~/lib/params-to-object";
 import { removeRpPrefix } from "~/lib/string/remove-rp-prefix";
 import type { CompoundFrequency } from "~/model/types";
 
@@ -24,9 +25,13 @@ export const meta: MetaFunction = () => {
 };
 
 export default function SavingsGoal() {
-  const data = useActionData<typeof action>();
+  const [searchParams] = useSearchParams();
   const navigation = useNavigation();
-  const isSubmitting = navigation.formAction === "/savings-goal";
+  const isSubmitting = navigation.state === "submitting";
+
+  const search = searchParams.entries();
+  const { s, i, m, y, f, r } = paramsToObject(search);
+  const isMonthlySavingsReady = Boolean(m);
 
   return (
     <PageContainer title="Savings Goal">
@@ -35,17 +40,30 @@ export default function SavingsGoal() {
           <CardContent className="pt-4">
             <div>
               <Label htmlFor="savingsGoal">Savings Goal (IDR)</Label>
-              <NumericInput id="savingsGoal" name="savingsGoal" />
+              <NumericInput
+                id="savingsGoal"
+                name="savingsGoal"
+                defaultValue={s}
+              />
             </div>
 
             <div className="mt-4">
               <Label htmlFor="initialInvestment">Initial Savings (IDR)</Label>
-              <NumericInput id="initialInvestment" name="initialInvestment" />
+              <NumericInput
+                id="initialInvestment"
+                name="initialInvestment"
+                defaultValue={i}
+              />
             </div>
 
             <div className="mt-4">
               <Label htmlFor="duration">Duration (years)</Label>
-              <NumericInput id="duration" name="duration" prefix="" />
+              <NumericInput
+                id="duration"
+                name="duration"
+                prefix=""
+                defaultValue={y}
+              />
             </div>
 
             <div className="my-2">
@@ -56,6 +74,7 @@ export default function SavingsGoal() {
                 prefix=""
                 thousandSeparator=","
                 decimalSeparator="."
+                defaultValue={r}
               />
             </div>
 
@@ -65,7 +84,7 @@ export default function SavingsGoal() {
               <select
                 id="compoundFrequency"
                 name="compoundFrequency"
-                defaultValue="annually"
+                defaultValue={f}
                 className="flex h-10 w-full mt-4 items-center justify-between rounded-md border border-slate-200 bg-white px-3 py-2 text-sm ring-offset-white placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-slate-950 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-800 dark:bg-slate-950 dark:ring-offset-slate-950 dark:placeholder:text-slate-400 dark:focus:ring-slate-300"
               >
                 <option value="annually">Annually</option>
@@ -84,7 +103,7 @@ export default function SavingsGoal() {
 
       <Card
         className={`mt-4 transition-all duration-300 ease-out	 ${
-          data
+          isMonthlySavingsReady
             ? "opacity-100 transform translate-y-0"
             : "opacity-0 transform -translate-y-4"
         }`}
@@ -92,13 +111,13 @@ export default function SavingsGoal() {
         <CardContent className="flex flex-col gap-1 items-center w-full overflow-hidden pt-4 font-medium text-slate-500 text-md">
           <p>You will need to save</p>
           <p className="text-lg font-semibold text-slate-600 text-center">
-            {data?.monthlySaving}
+            {m}
           </p>
           <p className="text-center">
-            every month over the next {data?.years} years to reach a savings of
+            every month over the next {y} years to reach a savings of
           </p>
           <p className="text-lg font-semibold text-green-500 text-center">
-            {data?.savingsGoal}
+            {s}
           </p>
         </CardContent>
       </Card>
@@ -124,9 +143,9 @@ export async function action({ request }: ActionFunctionArgs) {
     compoundFrequency,
   });
 
-  return json({
-    monthlySaving: formatCurrency(Number(monthlySaving)),
-    years: duration,
-    savingsGoal,
-  });
+  return redirect(
+    `/savings-goal?s=${savingsGoal}&i=${initialInvestment}&y=${duration}&r=${interest}&f=${compoundFrequency}&m=${formatCurrency(
+      Number(monthlySaving)
+    )}`
+  );
 }

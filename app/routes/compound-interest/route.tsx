@@ -1,8 +1,14 @@
-import { Form, useActionData, useNavigation } from "@remix-run/react";
+import {
+  Form,
+  useActionData,
+  useNavigation,
+  useSearchParams,
+} from "@remix-run/react";
 import {
   json,
   type ActionFunctionArgs,
   type MetaFunction,
+  redirect,
 } from "@remix-run/node";
 
 import { ButtonAnimate } from "~/components/button-animate";
@@ -15,6 +21,7 @@ import PageContainer from "~/components/page-container";
 import type { CompoundFrequency } from "~/model/types";
 import { removeRpPrefix } from "~/lib/string/remove-rp-prefix";
 import { Loader2 } from "lucide-react";
+import { paramsToObject } from "~/lib/params-to-object";
 
 export const meta: MetaFunction = () => {
   return [
@@ -28,18 +35,15 @@ const frequencyMap = {
   monthly: 12,
 } satisfies Record<CompoundFrequency, number>;
 
-const MAX_DURATION = 101;
-
-function validateYears(years: number) {
-  if (years > MAX_DURATION) {
-    return "Maximum duration is 100 years";
-  }
-}
-
 export default function route() {
   const data = useActionData<typeof action>();
+  const [searchParams] = useSearchParams();
   const navigation = useNavigation();
-  const isSubmitting = navigation.formAction === "/compound-interest";
+  const isSubmitting = navigation.state === "submitting";
+
+  const search = searchParams.entries();
+  const { i, m, y, f, r, b } = paramsToObject(search);
+  const isFinalBalanceReady = Boolean(b);
 
   return (
     <PageContainer title="Compound Interest">
@@ -50,7 +54,11 @@ export default function route() {
               <Label htmlFor="initialInvestment">
                 Initial Investment (IDR)
               </Label>
-              <NumericInput id="initialInvestment" name="initialInvestment" />
+              <NumericInput
+                id="initialInvestment"
+                name="initialInvestment"
+                defaultValue={i}
+              />
             </div>
 
             <div className="mt-4">
@@ -60,6 +68,7 @@ export default function route() {
               <NumericInput
                 id="monthlyContribution"
                 name="monthlyContribution"
+                defaultValue={m}
               />
             </div>
 
@@ -76,6 +85,7 @@ export default function route() {
                 id="years"
                 name="years"
                 prefix=""
+                defaultValue={y}
               />
               <span
                 className={`${
@@ -96,6 +106,7 @@ export default function route() {
                 prefix=""
                 thousandSeparator=","
                 decimalSeparator="."
+                defaultValue={r}
               />
             </div>
 
@@ -106,6 +117,7 @@ export default function route() {
                 id="compoundFrequency"
                 name="compoundFrequency"
                 className="flex h-10 w-full mt-4 items-center justify-between rounded-md border border-slate-200 bg-white px-3 py-2 text-sm ring-offset-white placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-slate-950 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-800 dark:bg-slate-950 dark:ring-offset-slate-950 dark:placeholder:text-slate-400 dark:focus:ring-slate-300"
+                defaultValue={f}
               >
                 <option value="annually">Annually</option>
                 <option value="monthly">Monthly</option>
@@ -130,22 +142,30 @@ export default function route() {
 
       <Card
         className={`mt-4 transition-all duration-300 ease-out	 ${
-          data?.finalBalance
+          isFinalBalanceReady
             ? "opacity-100 transform translate-y-0"
             : "opacity-0 transform -translate-y-4"
         }`}
       >
         <CardContent className="flex flex-col gap-2 items-center w-full overflow-hidden pt-4">
           <p className="font-medium text-slate-500 text-md">
-            In {data?.years} years, you will have
+            In {y} years, you will have
           </p>
           <p className="font-semibold text-xl text-slate-800 overflow-x-scroll w-full text-center">
-            {data?.finalBalance}
+            {b}
           </p>
         </CardContent>
       </Card>
     </PageContainer>
   );
+}
+
+const MAX_DURATION = 101;
+
+function validateYears(years: number) {
+  if (years > MAX_DURATION) {
+    return "Maximum duration is 100 years";
+  }
 }
 
 export async function action({ request }: ActionFunctionArgs) {
@@ -173,9 +193,9 @@ export async function action({ request }: ActionFunctionArgs) {
     compoundingFrequency: frequencyMap[compoundFrequency],
   });
 
-  return json({
-    finalBalance: formatCurrency(finalBalance),
-    years,
-    fieldErrors,
-  });
+  return redirect(
+    `/compound-interest?i=${initialInvestment}&m=${monthlyContribution}&y=${years}&r=${interest}&f=${compoundFrequency}&b=${formatCurrency(
+      finalBalance
+    )}`
+  );
 }
