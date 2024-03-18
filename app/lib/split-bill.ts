@@ -29,7 +29,7 @@ export function splitBill(
   const totalBalance = balances.reduce((sum, balance) => sum + balance, 0);
   const totalPayments = payments.reduce((sum, pay) => sum + pay, 0);
 
-  if (totalBalance !== totalPayments) {
+  if (totalExpense !== totalPayments) {
     throw new Error('Total expenses and payments do not match');
   }
 
