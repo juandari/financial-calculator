@@ -9,4 +9,5 @@ export default {
   future: {
     v2_dev: true,
   },
+  browserNodeBuiltinsPolyfill: { modules: { crypto: true } },
 };

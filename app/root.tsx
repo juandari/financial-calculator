@@ -10,6 +10,7 @@ import {
 } from "@remix-run/react";
 
 import styles from "./tailwind.css";
+import { Toaster } from "./components/ui/sonner";
 
 export const links: LinksFunction = () => [
   { rel: "stylesheet", href: styles },
@@ -38,6 +39,7 @@ export default function App() {
       <body className="relative font-display bg-slate-100">
         <div className="bg-slate-600 h-[30vh] w-full absolute top-0 left-0 -z-10"></div>
         <Outlet />
+        <Toaster position="bottom-center" duration={2000} />
         <ScrollRestoration />
         <Scripts />
         <LiveReload />
