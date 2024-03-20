@@ -1,12 +1,6 @@
 import { useRef, useState } from "react";
 import { toast } from "sonner";
-
-interface Participant {
-  id: string;
-  name: string;
-  expense: number | null;
-  payment: number | null;
-}
+import type { Participant } from "./types";
 
 const emptyParticipantError = "Please enter a participant name!";
 const participantExistsError = "Participant already exists!";
@@ -15,6 +9,7 @@ export const useSplitBillViewModel = () => {
   const participantNameRef = useRef<HTMLInputElement>(null);
   const [participantName, setParticipantName] = useState("");
   const [participants, setParticipants] = useState<Participant[]>([]);
+  const [paidBy, setPaidBy] = useState("");
 
   function handleChangeName(e: React.ChangeEvent<HTMLInputElement>) {
     setParticipantName(e.target.value);
@@ -74,10 +69,16 @@ export const useSplitBillViewModel = () => {
     setParticipants(newParticipants);
   }
 
+  function handleChangePaidBy(name: string) {
+    setPaidBy(name);
+  }
+
   return {
     participantName,
     participantNameRef,
     participants,
+    paidBy,
+    handleChangePaidBy,
     handleAddName,
     handleChangeName,
     handleEditName,
