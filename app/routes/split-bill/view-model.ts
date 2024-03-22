@@ -1,6 +1,7 @@
 import { useRef, useState } from "react";
 import { toast } from "sonner";
 import type { Participant } from "./types";
+import { removeRpPrefix } from "../../lib/string/remove-rp-prefix";
 
 const emptyParticipantError = "Please enter a participant name!";
 const participantExistsError = "Participant already exists!";
@@ -73,11 +74,20 @@ export const useSplitBillViewModel = () => {
     setPaidBy(name);
   }
 
+  function handleChangePaidAmounts(id: string, value: string) {
+    const newParticipants = participants.map((p) =>
+      p.id === id ? { ...p, payment: Number(removeRpPrefix(value)) } : p
+    );
+    setParticipants(newParticipants);
+    console.log(newParticipants, "arjun");
+  }
+
   return {
     participantName,
     participantNameRef,
     participants,
     paidBy,
+    handleChangePaidAmounts,
     handleChangePaidBy,
     handleAddName,
     handleChangeName,

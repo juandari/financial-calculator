@@ -6,11 +6,19 @@ import { Label } from "~/components/ui/label";
 import NumericInput from "~/components/numeric-input";
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
-import { json, type ActionFunctionArgs } from "@remix-run/node";
+import { json } from "@remix-run/node";
+import type { MetaFunction, ActionFunctionArgs } from "@remix-run/node";
 import { useSplitBillViewModel } from "./view-model";
 import InputName from "./input-name";
 import PaidBy from "./paid-by";
-import { Checkbox } from "~/components/ui/checkbox";
+import MultiplePeopleInput from "./multiple-people-input";
+
+export const meta: MetaFunction = () => {
+  return [
+    { title: "Split Bill" },
+    { name: "description", content: "Split expenses with friends and family" },
+  ];
+};
 
 export async function loader() {
   return json({ hello: "world" });
@@ -27,6 +35,7 @@ export default function SpliBillPage() {
     handleChangeName,
     handleEditName,
     handleDeleteName,
+    handleChangePaidAmounts,
   } = useSplitBillViewModel();
 
   return (
@@ -78,33 +87,22 @@ export default function SpliBillPage() {
             )}
 
             {participants.length > 0 && (
-              <div className="flex justify-content flex-col gap-4 mt-10">
-                <PaidBy
-                  value={paidBy}
-                  onValueChange={handleChangePaidBy}
-                  participants={participants}
-                />
-                {paidBy === "multiple" && participants.length > 1 ? (
-                  <div className="flex flex-col gap-3">
-                    {participants.map((p) => (
-                      <div
-                        key={p.id}
-                        className="flex gap-2 items-center mt-1 px-1"
-                      >
-                        <Checkbox id={p.id} className="rounded-sm" />
-                        <label
-                          htmlFor={p.id}
-                          className="text-md font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                        >
-                          {p.name}
-                        </label>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <p>{paidBy}</p>
-                )}
-              </div>
+              <>
+                <Label className="mt-1">Paid by</Label>
+                <div className="flex justify-content flex-col gap-2 mt-2">
+                  <PaidBy
+                    value={paidBy}
+                    onValueChange={handleChangePaidBy}
+                    participants={participants}
+                  />
+                  {paidBy === "Multiple" && participants.length > 1 ? (
+                    <MultiplePeopleInput
+                      participants={participants}
+                      onSubmit={handleChangePaidAmounts}
+                    />
+                  ) : null}
+                </div>
+              </>
             )}
 
             <Tabs defaultValue="account" className="w-full mt-4">

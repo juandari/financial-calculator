@@ -22,7 +22,9 @@ export default function PaidBy({
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="outline">Paid by</Button>
+        <Button variant="outline" className="w-full">
+          {value ? value : "Pick name"}
+        </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-56">
         <DropdownMenuRadioGroup value={value} onValueChange={onValueChange}>
@@ -32,7 +34,7 @@ export default function PaidBy({
             </DropdownMenuRadioItem>
           ))}
           {participants.length > 1 && (
-            <DropdownMenuRadioItem value="multiple">
+            <DropdownMenuRadioItem value="Multiple">
               Multiple people
             </DropdownMenuRadioItem>
           )}
