@@ -8,3 +8,9 @@
   -ms-touch-action: manipulation;
   touch-action: manipulation;
 }
+
+@layer components {
+  .ellipsis {
+    @apply overflow-hidden text-ellipsis whitespace-nowrap;
+  }
+}

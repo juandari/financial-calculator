@@ -12,6 +12,9 @@ import { useSplitBillViewModel } from "./view-model";
 import InputName from "./input-name";
 import PaidBy from "./paid-by";
 import MultiplePeopleInput from "./multiple-people-input";
+import { ButtonAnimate } from "~/components/button-animate";
+import { formatCurrency } from "../../lib/numbers/format-currency";
+import { Separator } from "~/components/ui/separator";
 
 export const meta: MetaFunction = () => {
   return [
@@ -30,12 +33,16 @@ export default function SpliBillPage() {
     participantNameRef,
     participants,
     paidBy,
+    bill,
+    settlements,
+    setBill,
     handleChangePaidBy,
     handleAddName,
     handleChangeName,
     handleEditName,
     handleDeleteName,
     handleChangePaidAmounts,
+    handleCalculateEqually,
   } = useSplitBillViewModel();
 
   return (
@@ -44,16 +51,24 @@ export default function SpliBillPage() {
         <Form method="post">
           <CardContent className="pt-4">
             <div>
-              <Label htmlFor="billAmount">Bill Amount (IDR)</Label>
+              <Label htmlFor="billAmount">
+                Bill Amount (IDR) <span className="text-red-500">*</span>
+              </Label>
               <NumericInput
                 id="billAmount"
                 name="billAmount"
                 placeholder="Amount"
+                value={bill}
+                onChange={(e) => setBill(e.target.value)}
+                className={`mt-2 ${bill ? "" : "border-red-400"}`}
               />
             </div>
 
             <div className="mt-4">
-              <Label htmlFor="participantName">Participants</Label>
+              <Label htmlFor="participantName">
+                Participants (More than 1){" "}
+                <span className="text-red-500">*</span>
+              </Label>
               <div className="flex items-center gap-2 mt-2">
                 <Input
                   ref={participantNameRef}
@@ -62,6 +77,7 @@ export default function SpliBillPage() {
                   placeholder="Name"
                   value={participantName}
                   onChange={handleChangeName}
+                  className={participants.length > 1 ? "" : "border-red-400"}
                 />
                 <Button
                   name="intent"
@@ -88,19 +104,21 @@ export default function SpliBillPage() {
 
             {participants.length > 0 && (
               <>
-                <Label className="mt-1">Paid by</Label>
+                <Label className="mt-1">
+                  Paid by <span className="text-red-500">*</span>
+                </Label>
                 <div className="flex justify-content flex-col gap-2 mt-2">
                   <PaidBy
                     value={paidBy}
                     onValueChange={handleChangePaidBy}
                     participants={participants}
                   />
-                  {paidBy === "Multiple" && participants.length > 1 ? (
+                  {paidBy.includes("Multiple") && participants.length > 1 && (
                     <MultiplePeopleInput
                       participants={participants}
                       onSubmit={handleChangePaidAmounts}
                     />
-                  ) : null}
+                  )}
                 </div>
               </>
             )}
@@ -115,10 +133,40 @@ export default function SpliBillPage() {
                 </TabsTrigger>
               </TabsList>
               <TabsContent value="equally">
-                Make changes to your account here.
+                <ButtonAnimate
+                  onClick={handleCalculateEqually}
+                  className="bg-teal-500 hover:bg-teal-400 w-full"
+                >
+                  Calculate
+                </ButtonAnimate>
+                {settlements && (
+                  <div className="mt-3">
+                    <h2 className="font-bold mb-4">
+                      Who pays whom and how much
+                    </h2>
+                    {settlements.map((s, idx) => (
+                      <div key={idx}>
+                        <div className="flex justify-center gap-4 mt-2">
+                          <p className="w-[25%] ellipsis">{s.payer}</p>
+                          <div className="flex items-center w-[50%]">
+                            <span className="bg-teal-500 text-white px-2">
+                              {formatCurrency(s.amount)}
+                            </span>
+                            <div className="w-0 h-0 border-t-[12px] border-t-transparent border-l-[14px] border-l-teal-500 border-b-[12px] border-b-transparent"></div>
+                          </div>
+                          <p className="w-[25%] ellipsis">{s.recipient}</p>
+                        </div>
+                        <Separator className="mt-2" />
+                      </div>
+                    ))}
+                  </div>
+                )}
               </TabsContent>
+
               <TabsContent value="unequally">
-                Change your password here.
+                <ButtonAnimate className="bg-cyan-500 hover:bg-cyan-400 w-full">
+                  Calculate
+                </ButtonAnimate>
               </TabsContent>
             </Tabs>
           </CardContent>

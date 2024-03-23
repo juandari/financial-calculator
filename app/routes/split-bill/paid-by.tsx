@@ -6,7 +6,7 @@ import {
   DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu";
 import { Button } from "~/components/ui/button";
-import type { Participant } from "./types";
+import type { Participant } from "~/domain/model/split-bill";
 
 interface PaidByProps {
   value: string;
@@ -22,11 +22,14 @@ export default function PaidBy({
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="outline" className="w-full">
+        <Button
+          variant="outline"
+          className={`w-full ${!value ? "border-red-400" : ""}`}
+        >
           {value ? value : "Pick name"}
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent className="w-56">
+      <DropdownMenuContent className="w-64">
         <DropdownMenuRadioGroup value={value} onValueChange={onValueChange}>
           {participants.map((p) => (
             <DropdownMenuRadioItem key={p.id} value={p.name}>

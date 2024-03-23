@@ -61,7 +61,7 @@ export default function InputName({
           value={name}
           onKeyDown={handleKeyDown}
           onChange={(e) => setName(e.target.value)}
-          className="text-sm px-2 overflow-hidden text-ellipsis whitespace-nowrap border-none bg-transparent"
+          className="text-sm px-2 ellipsis border-none bg-transparent"
         />
         <div className="flex ml-2">
           {!isEditing ? (

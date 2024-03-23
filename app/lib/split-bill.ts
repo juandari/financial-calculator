@@ -1,52 +1,32 @@
-interface Settlement {
-  payer: string;
-  recipient: string;
-  amount: number;
-}
-
-interface Payer {
-  name: string;
-  expense: number;
-  payment: number;
-}
+import type { Participant, Settlement } from "~/domain/model/split-bill";
 
 export function splitBill(
   totalExpense: number,
-  expenses: number[],
-  payments: number[]
-): Settlement[] {
+  participants: Participant[]
+): [Settlement[] | null, Error | null] {
   const settlements: Settlement[] = [];
 
-  // Initialize payers with expenses and payments
-  const payers: Payer[] = expenses.map((expense, index) => ({
-    name: `Person ${index + 1}`,
-    expense,
-    payment: payments[index],
-  }));
+  const payments = participants.map((payer) => payer.payment || 0);
 
   // Calculate balances
-  const balances = payers.map((payer) => payer.payment - payer.expense);
-  const totalBalance = balances.reduce((sum, balance) => sum + balance, 0);
+  const balances = participants.map(
+    (payer) => Number(payer.payment) - Number(payer.expense)
+  );
   const totalPayments = payments.reduce((sum, pay) => sum + pay, 0);
 
   if (totalExpense !== totalPayments) {
-    throw new Error('Total expenses and payments do not match');
-  }
-
-  // Ensure total balance is zero
-  if (totalBalance !== 0) {
-    throw new Error('Total expenses and payments do not match');
+    return [null, new Error("Total expenses and payments do not match")];
   }
 
   // Separate creditors and debtors
-  const creditors: typeof payers = [];
-  const debtors: typeof payers = [];
+  const creditors: typeof participants = [];
+  const debtors: typeof participants = [];
 
   balances.forEach((balance, index) => {
     if (balance > 0) {
-      creditors.push(payers[index]);
+      creditors.push(participants[index]);
     } else {
-      debtors.push(payers[index]);
+      debtors.push(participants[index]);
     }
   });
 
@@ -70,5 +50,5 @@ export function splitBill(
     }
   });
 
-  return settlements;
+  return [settlements, null];
 }

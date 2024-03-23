@@ -1,16 +1,19 @@
 import { useRef, useState } from "react";
 import { toast } from "sonner";
-import type { Participant } from "./types";
-import { removeRpPrefix } from "../../lib/string/remove-rp-prefix";
+import type { Participant, Settlement } from "~/domain/model/split-bill";
+import { splitBill } from "~/lib/split-bill";
+import { removeRpPrefix } from "~/lib/string/remove-rp-prefix";
 
 const emptyParticipantError = "Please enter a participant name!";
 const participantExistsError = "Participant already exists!";
 
 export const useSplitBillViewModel = () => {
   const participantNameRef = useRef<HTMLInputElement>(null);
+  const [bill, setBill] = useState("");
   const [participantName, setParticipantName] = useState("");
   const [participants, setParticipants] = useState<Participant[]>([]);
   const [paidBy, setPaidBy] = useState("");
+  const [settlements, setSettlements] = useState<Settlement[] | null>(null);
 
   function handleChangeName(e: React.ChangeEvent<HTMLInputElement>) {
     setParticipantName(e.target.value);
@@ -35,8 +38,8 @@ export const useSplitBillViewModel = () => {
       {
         id: crypto.randomUUID(),
         name: participantName.trim(),
-        expense: null,
-        payment: null,
+        expense: 0,
+        payment: 0,
       },
     ]);
   }
@@ -74,12 +77,44 @@ export const useSplitBillViewModel = () => {
     setPaidBy(name);
   }
 
-  function handleChangePaidAmounts(id: string, value: string) {
-    const newParticipants = participants.map((p) =>
-      p.id === id ? { ...p, payment: Number(removeRpPrefix(value)) } : p
-    );
+  function handleChangePaidAmounts(newParticipants: Participant[]) {
     setParticipants(newParticipants);
-    console.log(newParticipants, "arjun");
+  }
+
+  function handleCalculateEqually() {
+    if (!bill) {
+      toast.error("Please enter the bill amount!");
+      return;
+    }
+    if (participants.length < 2) {
+      toast.error("Participants must be more than 1!");
+      return;
+    }
+    if (!paidBy) {
+      toast.error("Please select who paid the bill!");
+      return;
+    }
+
+    let newParticipants = participants;
+    const fmtBill = Number(removeRpPrefix(bill));
+
+    // distribute the bill equally to all participants and modify participants array
+    newParticipants = newParticipants.map((p) => ({
+      ...p,
+      payment: paidBy !== "Multiple" && p.name === paidBy ? fmtBill : 0,
+      expense: fmtBill / participants.length,
+    }));
+    console.log(newParticipants, "arjun participants");
+
+    const [settlements, error] = splitBill(fmtBill, newParticipants);
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
+
+    setSettlements(settlements);
+
+    console.log(settlements, "arjun result");
   }
 
   return {
@@ -87,11 +122,15 @@ export const useSplitBillViewModel = () => {
     participantNameRef,
     participants,
     paidBy,
+    bill,
+    settlements,
+    setBill,
     handleChangePaidAmounts,
     handleChangePaidBy,
     handleAddName,
     handleChangeName,
     handleEditName,
     handleDeleteName,
+    handleCalculateEqually,
   };
 };

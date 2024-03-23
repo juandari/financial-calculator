@@ -9,11 +9,13 @@ import {
   DrawerClose,
   Drawer,
 } from "~/components/ui/drawer";
-import type { Participant } from "./types";
+import { useState } from "react";
+import { removeRpPrefix } from "~/lib/string/remove-rp-prefix";
+import type { Participant } from "~/domain/model/split-bill";
 
 interface MultiplePeopleInputProps {
   participants: Participant[];
-  onSubmit: (id: string, payment: string) => void;
+  onSubmit: (participants: Participant[]) => void;
 }
 
 const title = "Enter paid amounts";
@@ -22,13 +24,29 @@ export default function MultiplePeopleInput({
   participants,
   onSubmit,
 }: MultiplePeopleInputProps) {
+  const [tempParticipants, setTempParticipants] = useState(participants);
+  const [isOpen, setIsOpen] = useState(false);
+
   function handleChangeAmount(id: string, value: string) {
-    onSubmit(id, value);
+    setTempParticipants((prevParticipants) =>
+      prevParticipants.map((p) =>
+        p.id === id ? { ...p, payment: Number(removeRpPrefix(value)) } : p
+      )
+    );
+  }
+
+  function handleSubmit() {
+    onSubmit(tempParticipants);
+    setIsOpen(false);
+  }
+
+  function handleOpenChange(open: boolean) {
+    setIsOpen(open);
   }
 
   return (
-    <Drawer>
-      <DrawerTrigger>
+    <Drawer open={isOpen} onOpenChange={handleOpenChange}>
+      <DrawerTrigger asChild>
         <Button className="w-full">{title}</Button>
       </DrawerTrigger>
       <DrawerContent>
@@ -48,8 +66,11 @@ export default function MultiplePeopleInput({
         </div>
 
         <DrawerFooter>
-          <DrawerClose>
-            <Button className="w-full">Cancel</Button>
+          <Button onClick={handleSubmit}>Submit</Button>
+          <DrawerClose asChild>
+            <Button variant="outline" className="w-full">
+              Cancel
+            </Button>
           </DrawerClose>
         </DrawerFooter>
       </DrawerContent>
@@ -66,7 +87,7 @@ interface CustomInputProps {
 function CustomInput({ name, value, onChange }: CustomInputProps) {
   return (
     <div className="flex gap-2 items-center mt-1 px-5">
-      <p className="text-md w-[30%] overflow-hidden text-ellipsis whitespace-nowrap font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+      <p className="text-md w-[30%] ellipsis font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
         {name}
       </p>
       <NumericInput
