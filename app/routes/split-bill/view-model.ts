@@ -98,13 +98,18 @@ export const useSplitBillViewModel = () => {
     let newParticipants = participants;
     const fmtBill = Number(removeRpPrefix(bill));
 
-    // distribute the bill equally to all participants and modify participants array
-    newParticipants = newParticipants.map((p) => ({
-      ...p,
-      payment: paidBy !== "Multiple" && p.name === paidBy ? fmtBill : 0,
-      expense: fmtBill / participants.length,
-    }));
-    console.log(newParticipants, "arjun participants");
+    if (paidBy !== "Multiple") {
+      newParticipants = newParticipants.map((p) => ({
+        ...p,
+        payment: p.name === paidBy ? fmtBill : 0,
+        expense: fmtBill / participants.length,
+      }));
+    } else {
+      newParticipants = newParticipants.map((p) => ({
+        ...p,
+        expense: fmtBill / participants.length,
+      }));
+    }
 
     const [settlements, error] = splitBill(fmtBill, newParticipants);
     if (error) {
@@ -113,8 +118,6 @@ export const useSplitBillViewModel = () => {
     }
 
     setSettlements(settlements);
-
-    console.log(settlements, "arjun result");
   }
 
   return {

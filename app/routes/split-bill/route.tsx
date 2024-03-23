@@ -47,6 +47,7 @@ export default function SpliBillPage() {
 
   return (
     <PageContainer title="Split Bill">
+      <h1 className="text-2xl font-bold mb-4">Under construction</h1>
       <Card className="mt-10">
         <Form method="post">
           <CardContent className="pt-4">
