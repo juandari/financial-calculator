@@ -1,54 +1,62 @@
 import type { Participant, Settlement } from "~/domain/model/split-bill";
 
+/**
+ * algorithm:
+ * calculate balance of each person
+ * separate people into creditors (minus balance) and debtors (plus balance)
+ * for each person in creditors, find the person in debtors with the highest balance
+ * transfer the amount from debtor to creditor
+ */
 export function splitBill(
   totalExpense: number,
   participants: Participant[]
 ): [Settlement[] | null, Error | null] {
-  const settlements: Settlement[] = [];
-
-  const payments = participants.map((payer) => payer.payment || 0);
-
-  // Calculate balances
-  const balances = participants.map(
-    (payer) => Number(payer.payment) - Number(payer.expense)
-  );
-  const totalPayments = payments.reduce((sum, pay) => sum + pay, 0);
-
-  if (totalExpense !== totalPayments) {
+  if (
+    totalExpense !==
+    Math.round(participants.reduce((acc, p) => acc + p.expense, 0))
+  ) {
     return [null, new Error("Total expenses and payments do not match")];
   }
 
-  // Separate creditors and debtors
-  const creditors: typeof participants = [];
-  const debtors: typeof participants = [];
+  const payments = Math.round(
+    participants.reduce((acc, p) => acc + p.payment, 0)
+  );
 
-  balances.forEach((balance, index) => {
-    if (balance > 0) {
-      creditors.push(participants[index]);
-    } else {
-      debtors.push(participants[index]);
-    }
-  });
+  if (totalExpense !== payments) {
+    return [null, new Error("Total expenses and payments do not match")];
+  }
 
-  // Settle balances
-  debtors.forEach((debtor) => {
-    const debtorBalance = debtor.expense - debtor.payment;
-    creditors.sort((a, b) => b.payment - b.expense - (a.payment - a.expense));
-    for (const creditor of creditors) {
-      const creditorBalance = creditor.payment - creditor.expense;
-      const settlementAmount = Math.min(debtorBalance, creditorBalance);
-      if (settlementAmount > 0) {
+  const participantsWithBalance = participants.map((p) => ({
+    ...p,
+    balance: p.expense - p.payment,
+  }));
+
+  const settlements: Settlement[] = [];
+  const creditors = participantsWithBalance.filter((p) => p.balance < 0);
+  const debtors = participantsWithBalance.filter((p) => p.balance > 0);
+
+  for (const creditor of creditors) {
+    let amount = Math.abs(creditor.balance);
+    for (const debtor of debtors) {
+      if (debtor.balance === 0) {
+        continue;
+      }
+
+      const transferAmount = Math.min(amount, debtor.balance);
+      if (transferAmount > 0) {
         settlements.push({
           payer: debtor.name,
           recipient: creditor.name,
-          amount: settlementAmount,
+          amount: Number.isInteger(transferAmount)
+            ? transferAmount
+            : Number(transferAmount.toFixed(2)),
         });
-        debtor.payment += settlementAmount;
-        creditor.payment -= settlementAmount;
-        break;
+        amount -= transferAmount;
+        debtor.balance -= transferAmount;
+        creditor.balance += transferAmount;
       }
     }
-  });
+  }
 
   return [settlements, null];
 }

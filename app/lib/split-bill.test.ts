@@ -53,10 +53,10 @@ describe("split equally", () => {
 
   test("all people pay", () => {
     const [result, err] = splitBill(200, [
-      { id: "1", name: "Alice", expense: 50, payment: 10 }, // -40
-      { id: "2", name: "Bob", expense: 50, payment: 60 }, // 10
-      { id: "3", name: "Charlie", expense: 50, payment: 30 }, // -20
-      { id: "4", name: "David", expense: 50, payment: 100 }, // 50
+      { id: "1", name: "Alice", expense: 50, payment: 10 }, // 40
+      { id: "2", name: "Bob", expense: 50, payment: 60 }, // -10
+      { id: "3", name: "Charlie", expense: 50, payment: 30 }, // 20
+      { id: "4", name: "David", expense: 50, payment: 100 }, // -50
     ]);
     expect(result).toEqual([
       { payer: "Alice", recipient: "Bob", amount: 10 },
