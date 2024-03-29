@@ -47,7 +47,6 @@ export default function SpliBillPage() {
 
   return (
     <PageContainer title="Split Bill">
-      <h1 className="text-2xl font-bold mb-4">Under construction</h1>
       <Card className="mt-10">
         <Form method="post">
           <CardContent className="pt-4">
@@ -117,14 +116,17 @@ export default function SpliBillPage() {
                   {paidBy.includes("Multiple") && participants.length > 1 && (
                     <MultiplePeopleInput
                       participants={participants}
-                      onSubmit={handleChangePaidAmounts}
+                      onChangePaidAmounts={handleChangePaidAmounts}
                     />
                   )}
                 </div>
               </>
             )}
 
-            <Tabs defaultValue="account" className="w-full mt-4">
+            <h3 className="mt-4 font-medium text-sm">
+              Split <span className="text-red-500">*</span>
+            </h3>
+            <Tabs defaultValue="equally" className="w-full mt-2">
               <TabsList className="w-full">
                 <TabsTrigger className="w-[50%]" value="equally">
                   equally
@@ -165,7 +167,12 @@ export default function SpliBillPage() {
               </TabsContent>
 
               <TabsContent value="unequally">
-                <ButtonAnimate className="bg-cyan-500 hover:bg-cyan-400 w-full">
+                <p className="text-xl font-bold mb-4">Under construction</p>
+
+                <ButtonAnimate
+                  disabled
+                  className="bg-cyan-500 hover:bg-cyan-400 w-full"
+                >
                   Calculate
                 </ButtonAnimate>
               </TabsContent>
