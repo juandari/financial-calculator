@@ -139,9 +139,13 @@ export default function SpliBillPage() {
               </TabsTrigger>
             </TabsList>
             <TabsContent value="equally">
+              {Boolean(!participants.length) && (
+                <p className="text-sm text-red-500">Enter participants first</p>
+              )}
               <ButtonAnimate
                 onClick={handleCalculateEqually}
-                className="bg-teal-500 hover:bg-teal-400 w-full"
+                className="bg-teal-500 hover:bg-teal-400 w-full mt-2"
+                disabled={participants.length < 1}
               >
                 Calculate
               </ButtonAnimate>
