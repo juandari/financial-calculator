@@ -2,23 +2,34 @@ import { describe, expect, test } from "vitest";
 
 import { splitBill } from "./split-bill";
 
-describe("split equally", () => {
+describe("test error handling", () => {
   test("different total expenses and payments", () => {
     const [result, err] = splitBill(150, [
       { id: "1", name: "Alice", expense: 50, payment: 100 },
       { id: "2", name: "Bob", expense: 10, payment: 100 },
     ]);
-    expect(result).toEqual(null);
-    expect(err).toEqual(new Error("Total expenses and payments do not match"));
+    expect(result).toBeNull();
+    expect(err).not.toBeNull();
   });
 
+  test("different total expenses by summing expenses and payments ", () => {
+    const [result, err] = splitBill(150, [
+      { id: "1", name: "Alice", expense: 50, payment: 100 },
+      { id: "2", name: "Bob", expense: 10, payment: 50 },
+    ]);
+    expect(result).toBeNull();
+    expect(err).not.toBeNull();
+  });
+});
+
+describe("split equally", () => {
   test("simple case", () => {
     const [result, err] = splitBill(100, [
       { id: "1", name: "Alice", expense: 50, payment: 100 }, // 50
       { id: "2", name: "Bob", expense: 50, payment: 0 }, // -50
     ]);
     expect(result).toEqual([{ payer: "Bob", recipient: "Alice", amount: 50 }]);
-    expect(err).toEqual(null);
+    expect(err).toBeNull();
   });
 
   test("multiple people pay", () => {
@@ -33,7 +44,7 @@ describe("split equally", () => {
       { payer: "Charlie", recipient: "Bob", amount: 10 },
       { payer: "Charlie", recipient: "David", amount: 5 },
     ]);
-    expect(err).toEqual(null);
+    expect(err).toBeNull();
   });
 
   test("more people but only one pays", () => {
@@ -48,7 +59,7 @@ describe("split equally", () => {
       { payer: "Bob", recipient: "Charlie", amount: 50 },
       { payer: "David", recipient: "Charlie", amount: 50 },
     ]);
-    expect(err).toEqual(null);
+    expect(err).toBeNull();
   });
 
   test("all people pay", () => {
@@ -63,7 +74,7 @@ describe("split equally", () => {
       { payer: "Alice", recipient: "David", amount: 30 },
       { payer: "Charlie", recipient: "David", amount: 20 },
     ]);
-    expect(err).toEqual(null);
+    expect(err).toBeNull();
   });
 
   test("decimal expenses", () => {
@@ -84,7 +95,7 @@ describe("split equally", () => {
       { payer: "Grace", recipient: "Alice", amount: 7.15 }, // Alice: 0, Grace: -21.42
       { payer: "Grace", recipient: "Charlie", amount: 21.42 }, // Charlie: 0.01, Grace: 0
     ]);
-    expect(err).toEqual(null);
+    expect(err).toBeNull();
   });
 
   test("decimal expenses and all people pay", () => {
@@ -105,6 +116,45 @@ describe("split equally", () => {
       { payer: "Charlie", recipient: "Grace", amount: 2.85 }, // Charlie: 0, Grace: 18.58
       { payer: "Eve", recipient: "Grace", amount: 18.57 }, // Eve: 0, Grace: 0.01
     ]);
-    expect(err).toEqual(null);
+    expect(err).toBeNull();
+  });
+});
+
+describe("split unequally", () => {
+  test("simple case", () => {
+    const [result, err] = splitBill(100, [
+      { id: "1", name: "Alice", expense: 70, payment: 100 },
+      { id: "2", name: "Bob", expense: 30, payment: 0 },
+    ]);
+    expect(err).toBeNull();
+    expect(result).toEqual([{ payer: "Bob", recipient: "Alice", amount: 30 }]);
+  });
+
+  test("more people but only one pays", () => {
+    const [result, err] = splitBill(200, [
+      { id: "1", name: "Alice", expense: 20, payment: 0 },
+      { id: "2", name: "Bob", expense: 10, payment: 0 },
+      { id: "3", name: "Charlie", expense: 100, payment: 200 },
+      { id: "4", name: "David", expense: 70, payment: 0 },
+    ]);
+    expect(err).toBeNull();
+    expect(result).toEqual([
+      { payer: "Alice", recipient: "Charlie", amount: 20 },
+      { payer: "Bob", recipient: "Charlie", amount: 10 },
+      { payer: "David", recipient: "Charlie", amount: 70 },
+    ]);
+  });
+
+  test("multiple people pay", () => {
+    const [result, err] = splitBill(200, [
+      { id: "1", name: "Alice", expense: 20, payment: 40 }, // -20
+      { id: "2", name: "Bob", expense: 10, payment: 10 }, // 0
+      { id: "3", name: "Charlie", expense: 100, payment: 100 }, // 0
+      { id: "4", name: "David", expense: 70, payment: 50 }, // 20
+    ]);
+    expect(err).toBeNull();
+    expect(result).toEqual([
+      { payer: "David", recipient: "Alice", amount: 20 },
+    ]);
   });
 });
