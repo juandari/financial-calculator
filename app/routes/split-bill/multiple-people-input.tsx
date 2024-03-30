@@ -1,23 +1,21 @@
 import NumericInput from "~/components/numeric-input";
-import { removeRpPrefix } from "~/lib/string/remove-rp-prefix";
 import type { Participant } from "~/domain/model/split-bill";
 
 interface MultiplePeopleInputProps {
+  title: string;
+  type: "payment" | "expense";
   participants: Participant[];
-  onChangePaidAmounts: (participants: Participant[]) => void;
+  onChange: (id: string, value: string) => void;
 }
 
-const title = "Enter paid amounts";
-
 export default function MultiplePeopleInput({
+  title,
+  type,
   participants,
-  onChangePaidAmounts,
+  onChange,
 }: MultiplePeopleInputProps) {
   function handleChangeAmount(id: string, value: string) {
-    const newParticipants = participants.map((p) =>
-      p.id === id ? { ...p, payment: Number(removeRpPrefix(value)) } : p
-    );
-    onChangePaidAmounts(newParticipants);
+    onChange(id, value);
   }
 
   return (
@@ -29,7 +27,7 @@ export default function MultiplePeopleInput({
           <CustomInput
             key={p.id}
             name={p.name}
-            value={p.payment || 0}
+            value={type === "payment" ? p.payment : p.expense}
             onChange={(value) => handleChangeAmount(p.id, value)}
           />
         ))}

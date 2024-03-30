@@ -13,7 +13,12 @@ export const useSplitBillViewModel = () => {
   const [participantName, setParticipantName] = useState("");
   const [participants, setParticipants] = useState<Participant[]>([]);
   const [paidBy, setPaidBy] = useState("");
-  const [settlements, setSettlements] = useState<Settlement[] | null>(null);
+  const [equalSettlements, setEqualSettlements] = useState<Settlement[] | null>(
+    null
+  );
+  const [unequalSettlements, setUnequalSettlements] = useState<
+    Settlement[] | null
+  >(null);
 
   function handleChangeName(e: React.ChangeEvent<HTMLInputElement>) {
     setParticipantName(e.target.value);
@@ -75,25 +80,49 @@ export const useSplitBillViewModel = () => {
 
   function handleChangePaidBy(name: string) {
     setPaidBy(name);
+
+    if (name !== "Multiple") {
+      const newParticipants = participants.map((p) => ({
+        ...p,
+        payment: p.name === name ? Number(removeRpPrefix(bill)) : 0,
+      }));
+      setParticipants(newParticipants);
+    }
   }
 
-  function handleChangePaidAmounts(newParticipants: Participant[]) {
+  function handleChangePaidAmounts(id: string, value: string) {
+    const newParticipants = participants.map((p) =>
+      p.id === id ? { ...p, payment: Number(removeRpPrefix(value)) } : p
+    );
     setParticipants(newParticipants);
   }
 
-  function handleCalculateEqually() {
+  function handleChangeExpenseAmounts(id: string, value: string) {
+    const newParticipants = participants.map((p) =>
+      p.id === id ? { ...p, expense: Number(removeRpPrefix(value)) } : p
+    );
+    setParticipants(newParticipants);
+  }
+
+  function validateForm() {
     if (!bill) {
       toast.error("Please enter the bill amount!");
-      return;
+      return false;
     }
     if (participants.length < 2) {
       toast.error("Participants must be more than 1!");
-      return;
+      return false;
     }
     if (!paidBy) {
       toast.error("Please select who paid the bill!");
-      return;
+      return false;
     }
+
+    return true;
+  }
+
+  function handleCalculateEqually() {
+    if (!validateForm()) return;
 
     let newParticipants = participants;
     const fmtBill = Number(removeRpPrefix(bill));
@@ -117,7 +146,20 @@ export const useSplitBillViewModel = () => {
       return;
     }
 
-    setSettlements(settlements);
+    setEqualSettlements(settlements);
+  }
+
+  function handleCalculateUnequally() {
+    if (!validateForm()) return;
+
+    const fmtBill = Number(removeRpPrefix(bill));
+    const [settlements, error] = splitBill(fmtBill, participants);
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
+
+    setUnequalSettlements(settlements);
   }
 
   return {
@@ -126,9 +168,12 @@ export const useSplitBillViewModel = () => {
     participants,
     paidBy,
     bill,
-    settlements,
+    equalSettlements,
+    unequalSettlements,
     setBill,
     handleChangePaidAmounts,
+    handleChangeExpenseAmounts,
+    handleCalculateUnequally,
     handleChangePaidBy,
     handleAddName,
     handleChangeName,
