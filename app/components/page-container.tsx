@@ -15,7 +15,7 @@ export default function PageContainer({ title, children }: PageContainer) {
         style={{ viewTransitionName: "card-title" }}
       >
         <NavLink
-          unstable_viewTransition
+          viewTransition
           to=".."
           replace
           className="inline-block"

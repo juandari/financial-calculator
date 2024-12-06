@@ -10,7 +10,7 @@ interface MenuCardProps {
 export default function MenuCard({ title, children, href }: MenuCardProps) {
   return (
     <NavLink
-      unstable_viewTransition
+      viewTransition
       to={href}
       className="active:scale-90 hover:scale-x-105 transition-all cursor-pointer shadow-xl rounded-xl text-slate-700 font-semibold p-2 bg-slate-50 w-80 h-44 text-center flex flex-col items-center justify-center"
     >
