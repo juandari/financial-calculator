@@ -31,9 +31,8 @@ export default function App() {
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <link rel="manifest" href="/manifest.json" />
+        <link rel="manifest" href="/manifest.webmanifest" />
         <meta name="theme-color" content="#475569" />
-        <link rel="apple-touch-icon" href="/icons/apple-icon-180x180.png" />
         <meta name="apple-mobile-web-app-status-bar" content="#475569" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="mobile-web-app-capable" content="yes" />

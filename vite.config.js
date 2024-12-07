@@ -42,16 +42,41 @@ export default defineConfig({
         "display": "standalone",
         "background_color": "#ffffff",
         "theme_color": "#475569",
+        "orientation": "portrait",
+        "categories": ["finance", "utilities", "productivity"],
+        "prefer_related_applications": false,
         "icons": [
           {
             "src": "/icons/icon-192x192.png",
             "sizes": "192x192",
-            "type": "image/png"
+            "type": "image/png",
           },
           {
             "src": "/icons/icon-512x512.png", 
             "sizes": "512x512",
-            "type": "image/png"
+            "type": "image/png",
+          },
+          {
+            "src": "/icons/apple-icon-180x180.png",
+            "sizes": "180x180",
+            "type": "image/png",
+            "purpose": "apple touch icon"
+          }
+        ],
+        "screenshots": [
+          {
+            "src": "/screenshots/desktop.png",
+            "sizes": "1916x959",
+            "type": "image/png",
+            "form_factor": "wide",
+            "label": "Desktop view of Financial Calculator"
+          },
+          {
+            "src": "/screenshots/mobile.png",
+            "sizes": "359x741",
+            "type": "image/png",
+            "form_factor": "narrow",
+            "label": "Mobile view of Financial Calculator"
           }
         ]
       },
