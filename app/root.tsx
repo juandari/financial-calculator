@@ -25,7 +25,6 @@ export const links: LinksFunction = () => [
 ];
 
 export default function App() {
-
   return (
     <html lang="en">
       <head>
@@ -37,15 +36,22 @@ export default function App() {
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="mobile-web-app-capable" content="yes" />
         <meta name="application-name" content="Financial Calculator" />
-        <meta name="apple-mobile-web-app-title" content="Financial Calculator" />
+        <meta
+          name="apple-mobile-web-app-title"
+          content="Financial Calculator"
+        />
         <meta name="msapplication-TileColor" content="#475569" />
-        <meta name="msapplication-TileImage" content="/icons/icon-144x144.png" />
+        <meta
+          name="msapplication-TileImage"
+          content="/icons/icon-144x144.png"
+        />
         <meta name="msapplication-config" content="/browserconfig.xml" />
         <Meta />
         <Links />
       </head>
       <body className="relative font-display bg-slate-100">
         <div className="bg-slate-600 h-[30vh] w-full absolute top-0 left-0 -z-10"></div>
+
         <Outlet />
         <Toaster position="bottom-center" duration={3000} />
         <ScrollRestoration />
