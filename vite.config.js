@@ -40,7 +40,7 @@ export default defineConfig({
         "description": "A simple financial calculator",
         "start_url": "/",
         "display": "standalone",
-        "background_color": "#ffffff",
+        "background_color": "#475569",
         "theme_color": "#475569",
         "orientation": "portrait",
         "categories": ["finance", "utilities", "productivity"],
@@ -97,6 +97,20 @@ export default defineConfig({
               },
             },
           },
+          {
+            urlPattern: /\.(?:js)$/,
+            handler: 'StaleWhileRevalidate',
+            options: {
+              cacheName: 'javascript-cache',
+              expiration: {
+                maxEntries: 50,
+                maxAgeSeconds: 60 * 60 * 24 * 30, // 30 days
+              },
+              cacheableResponse: {
+                statuses: [0, 200],
+              }
+            }
+          }
         ],
       }
     })
