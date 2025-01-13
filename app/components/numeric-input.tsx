@@ -8,13 +8,13 @@ interface NumericInputProps extends NumericFormatProps {}
 export default function NumericInput({ ...props }: NumericInputProps) {
   return (
     <NumericFormat
-      {...props}
       allowNegative={false}
       customInput={Input}
       thousandSeparator="."
       decimalSeparator=","
       className={cx("mt-2 text-base", props.className)}
       prefix="Rp"
+      {...props}
     />
   );
 }
