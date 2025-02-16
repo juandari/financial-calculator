@@ -151,7 +151,7 @@ export default function route() {
           <p className="font-medium text-slate-500 text-md">
             In {y} years, you will have
           </p>
-          <p className="font-semibold text-xl text-slate-800 overflow-x-scroll w-full text-center">
+          <p className="font-semibold text-xl text-slate-800 overflow-x-hidden w-full text-center">
             {b}
           </p>
         </CardContent>

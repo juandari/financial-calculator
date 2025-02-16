@@ -99,7 +99,7 @@ export default function Amortization() {
               <div className="mt-2">
                 <Label htmlFor="duration">Tenures (years)</Label>
                 <NumericInput
-                  className={`mt-2 ${
+                  className={`mt-2 text-base ${
                     data?.fieldErrors?.duration
                       ? " focus-visible:ring-red-400 focus-visible:ring-offset-2"
                       : ""
@@ -143,9 +143,18 @@ export default function Amortization() {
             : "opacity-0 transform -translate-y-4"
         }`}
       >
-        <h2 className=" font-bold text-lg text-slate-800">
-          Amortization Table
-        </h2>
+        <Card className="mt-4">
+          <CardHeader className="pb-4">
+            <CardTitle>Total Payment</CardTitle>
+            <CardDescription>Total payment of your loan</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <span className="text-2xl ">
+              {formatCurrency(data?.totalPayment)}
+            </span>
+          </CardContent>
+        </Card>
+
         <Card className="mt-4">
           <CardHeader className="pb-4">
             <CardTitle>Monthly Payment</CardTitle>
@@ -169,9 +178,13 @@ export default function Amortization() {
             </div>
           </CardContent>
         </Card>
-        <Card className={`mt-4`}>
-          <CardContent>
-            <Table className=" mt-10 rounded-lg">
+
+        <h2 className=" font-bold text-lg text-slate-800 mt-4">
+          Amortization Table
+        </h2>
+        <Card className="rounded-md border">
+          <CardContent className="relative overflow-y-auto max-h-[600px]">
+            <Table className="mt-2 rounded-lg">
               <TableHeader>
                 <TableRow>
                   <TableHead>Month</TableHead>
@@ -182,20 +195,25 @@ export default function Amortization() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {data?.amortizationData.map((item) => (
-                  <TableRow key={item.month}>
-                    <TableCell>{item.month}</TableCell>
+                {data?.amortizationData.map((item, index) => (
+                  <TableRow key={item?.month}>
+                    <TableCell>{item?.month}</TableCell>
                     <TableCell className="w-[200px]">
-                      {formatCurrency(item.monthlyPayment)}
+                      {formatCurrency(item?.monthlyPayment)}
                     </TableCell>
                     <TableCell>
-                      {formatCurrency(item.principalPayment)}
+                      {formatCurrency(item?.principalPayment)}
                     </TableCell>
                     <TableCell>
-                      {formatCurrency(item.interestPayment)}
+                      {formatCurrency(item?.interestPayment)}
                     </TableCell>
                     <TableCell>
-                      {formatCurrency(item.remainingPrincipal)}
+                      {/* if the remaining principal is negative, we need to show it as positive. This occurs when the loan is paid off, i.e. the remaining principal is 0. */}
+                      {index === data?.amortizationData.length - 1
+                        ? formatCurrency(
+                            Math.abs(Math.round(item?.remainingPrincipal))
+                          )
+                        : formatCurrency(item?.remainingPrincipal)}
                     </TableCell>
                   </TableRow>
                 ))}
@@ -225,6 +243,7 @@ export async function action({ request }: ActionFunctionArgs) {
       amortizationData: [],
       fieldErrors,
       fixDuration: Number(fixDuration),
+      totalPayment: 0,
     });
   }
 
@@ -239,7 +258,7 @@ export async function action({ request }: ActionFunctionArgs) {
     }
   }
 
-  const amortizationData = getAmortization({
+  const { amortizationData, totalPayment } = getAmortization({
     principal: Number(removeRpPrefix(price)),
     downPayment: Number(removeRpPrefix(downPayment)),
     interestRates,
@@ -250,5 +269,6 @@ export async function action({ request }: ActionFunctionArgs) {
     amortizationData,
     fixDuration: Number(fixDuration),
     fieldErrors,
+    totalPayment,
   });
 }

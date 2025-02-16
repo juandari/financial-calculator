@@ -42,5 +42,10 @@ export function getAmortization({
     amortizationData.push(paymentData);
   }
 
-  return amortizationData;
+  const totalPayment = amortizationData.reduce(
+    (acc, curr) => acc + curr.monthlyPayment,
+    0
+  );
+
+  return { amortizationData, totalPayment };
 }
