@@ -77,7 +77,7 @@ export default function route() {
                 Duration (years)
               </Label>
               <NumericInput
-                className={`mt-2 ${
+                className={`mt-2 text-base ${
                   data?.fieldErrors.years
                     ? " focus-visible:ring-red-400 focus-visible:ring-offset-2"
                     : ""
